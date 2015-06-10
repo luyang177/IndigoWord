@@ -1,0 +1,10 @@
+﻿<Window x:Class="IndigoWordSample.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:indigoWord="clr-namespace:IndigoWord;assembly=IndigoWord"
+        Title="IndigoWord" 
+        Width="1000"
+        Height="800"
+        Loaded="OnLoaded">
+    <indigoWord:IndigoWordEdit x:Name="Editor"/>
+</Window>

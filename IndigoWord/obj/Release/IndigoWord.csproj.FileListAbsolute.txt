@@ -1,0 +1,11 @@
+E:\2013Projects\IndigoWord\IndigoWord\bin\Release\IndigoWord.dll
+E:\2013Projects\IndigoWord\IndigoWord\bin\Release\IndigoWord.pdb
+E:\2013Projects\IndigoWord\IndigoWord\obj\Release\ResourceDictionary.baml
+E:\2013Projects\IndigoWord\IndigoWord\obj\Release\IndigoWordEdit.g.cs
+E:\2013Projects\IndigoWord\IndigoWord\obj\Release\GeneratedInternalTypeHelper.g.cs
+E:\2013Projects\IndigoWord\IndigoWord\obj\Release\IndigoWord_MarkupCompile.cache
+E:\2013Projects\IndigoWord\IndigoWord\obj\Release\IndigoWord_MarkupCompile.lref
+E:\2013Projects\IndigoWord\IndigoWord\obj\Release\IndigoWordEdit.baml
+E:\2013Projects\IndigoWord\IndigoWord\obj\Release\IndigoWord.g.resources
+E:\2013Projects\IndigoWord\IndigoWord\obj\Release\IndigoWord.dll
+E:\2013Projects\IndigoWord\IndigoWord\obj\Release\IndigoWord.pdb

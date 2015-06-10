@@ -1,0 +1,212 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.TextFormatting;
+using IndigoWord.Annotations;
+using IndigoWord.LowFontApi;
+using IndigoWord.Mvvm;
+using IndigoWord.Render;
+using IndigoWord.Utility;
+using Microsoft.Win32;
+
+namespace IndigoWord.Core
+{
+    /*
+     * TextEditor knows ILayer via ILayerProvider, not consider MVVM, MVVM is overkill now.
+     */
+    class TextEditor : INotifyPropertyChanged
+    {
+        #region Constructor
+
+        public TextEditor(ILayerProvider layerProvider)
+        {
+            if (layerProvider == null)
+            {
+                throw new ArgumentNullException("layerProvider");
+            }
+
+            InitRender(layerProvider);
+            
+            Document = OpenDocument(@"D:\t.txt");
+            //Document = TextDocument.Empty();
+
+            Show(Document);
+
+            InitCaret(layerProvider, Document);
+
+            //set caret initial position
+            Caret.Position = new TextPosition(0,0);
+        }
+
+        #endregion
+
+        #region Public Properties
+
+        public TextPosition CaretPosition
+        {
+            get
+            {
+                return Caret.Position;
+            }
+            set
+            {
+                Caret.Position = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsWrap
+        {
+            get
+            {
+                return DocumentRender.IsWrap;
+            }
+            set
+            {
+                DocumentRender.IsWrap = value;
+
+                //trigger caret redraw
+                Caret.Position = Caret.Position;
+            }
+        }
+
+        #endregion
+
+        #region Commands
+
+        #region Open file command
+
+        private ICommand _openCommand;
+
+        public ICommand OpenCommand
+        {
+            get { return _openCommand ?? (_openCommand = new RelayCommand(OpenFile)); }
+        }
+
+        private void OpenFile()
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                InitialDirectory = "c:\\", 
+                RestoreDirectory = true
+            };
+
+            var ret = openFileDialog.ShowDialog();
+            if (ret.HasValue && ret.Value)
+            {
+                var path = openFileDialog.FileName;
+
+                DocumentRender.Reset();
+                Document = OpenDocument(path);
+                Show(Document);
+                Caret.Document = Document;
+                Caret.Position = new TextPosition(0, 0);
+            }
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Public Methods
+
+        public void OnKeyDown(Key key)
+        {
+            if (key == Key.Left)
+            {
+                var pos = Document.GetPreviousTextPosition(Caret.Position);
+                CaretPosition = pos;
+            }
+            else if (key == Key.Right)
+            {
+                var pos = Document.GetNextTextPosition(Caret.Position);
+                CaretPosition = pos;
+            }
+            else if (key == Key.Down)
+            {
+                var pos = Document.GetDownLineTextPosition(Caret.Position, Caret.CaretRect);
+                CaretPosition = pos;
+            }
+            else if (key == Key.Up)
+            {
+                var pos = Document.GetUpLineTextPosition(Caret.Position, Caret.CaretRect);
+                CaretPosition = pos;
+            }
+
+        }
+
+        #endregion
+
+        #region Private Properties
+
+        private Caret Caret { get; set; }
+
+        private TextDocument Document { get; set; }
+
+        private DocumentRender DocumentRender { get; set; }
+
+        #endregion
+
+        #region Private Methods
+
+        private void InitRender(ILayerProvider layerProvider)
+        {
+            var layer = layerProvider.Get(LayerNames.Host);
+            DocumentRender = new DocumentRender(layer);
+        }
+
+        private void InitCaret(ILayerProvider layerProvider, TextDocument document)
+        {
+            Caret = new Caret(layerProvider, document);
+        }
+
+        private TextDocument OpenDocument(string path)
+        {
+            var lines = new List<LogicLine>();
+            using (var sr = File.OpenText(path))
+            {
+                var s = "";
+                int line = 0;
+                while ((s = sr.ReadLine()) != null)
+                {
+                    s += Environment.NewLine;
+
+                    var logicLine = new LogicLine(line, s);
+                    lines.Add(logicLine);
+                    
+                    line++;
+                }
+            }
+
+            var document = new TextDocument(lines);
+            return document;
+        }
+
+        private void Show(TextDocument document)
+        {
+            DocumentRender.Show(document);
+        }
+
+        #endregion
+
+        #region Implementation of INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null) 
+                handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #endregion
+    }
+}

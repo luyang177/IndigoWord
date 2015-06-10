@@ -1,0 +1,7 @@
+-- Every logic line draw start from height 0, and its text lines will draw start from 0, first text line height, first two text lines height. Next logic line will draw from 0 also.
+-- Every logic line draw its position via transform of drawing visual.
+-- Every logic line draw on single drawing visual.
+-- In wrap: when input one char that will wrap, we are not redraw the whole next lines, just transform the next lines.
+-- Core doesn't relay on Render, just Render know Core
+-- Draw text on VisualHost
+-- Draw caret on VisualAdorner
