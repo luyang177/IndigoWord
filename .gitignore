@@ -1,0 +1,16 @@
+*.suo
+*.user
+*.mdf
+*.ldf
+*.sdf
+*.ipch
+*.Cache
+*.vsp
+*.DotSettings
+_[Rr]e[Ss]harper.*
+bin/
+obj/
+Debug/
+Release/
+*.opensdf
+ipch/
