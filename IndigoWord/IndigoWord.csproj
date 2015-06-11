@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -43,6 +46,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\CommonSetting.cs" />
     <Compile Include="Core\Caret.cs" />
     <Compile Include="Core\PositionMoveType.cs" />
     <Compile Include="LowFontApi\CustomTextSource.cs" />
@@ -73,6 +77,7 @@
     <Compile Include="Utility\MathHelper.cs" />
     <Compile Include="Utility\Obj.cs" />
     <Compile Include="Utility\RectExtension.cs" />
+    <Compile Include="Utility\SerializerHelper.cs" />
     <Compile Include="Utility\TextLineExtension.cs" />
     <Compile Include="Utility\Win32.cs" />
   </ItemGroup>
@@ -85,6 +90,9 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

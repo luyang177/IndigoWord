@@ -32,10 +32,8 @@ namespace IndigoWord.Core
             }
 
             InitRender(layerProvider);
-            
-            Document = OpenDocument(@"D:\t.txt");
-            //Document = TextDocument.Empty();
 
+            Document = OpenFileAtStartTime();
             Show(Document);
 
             InitCaret(layerProvider, Document);
@@ -168,6 +166,12 @@ namespace IndigoWord.Core
 
         private TextDocument OpenDocument(string path)
         {
+            if (!File.Exists(path))
+            {
+                MessageBox.Show("File: {0} isn't exist",path);
+                return null;
+            }
+
             var lines = new List<LogicLine>();
             using (var sr = File.OpenText(path))
             {
@@ -184,13 +188,40 @@ namespace IndigoWord.Core
                 }
             }
 
-            var document = new TextDocument(lines);
-            return document;
+            CommonSetting.Instance.LatestDocPath = path;
+            CommonSetting.Save();
+
+            if (lines.Count == 0)
+            {
+                return TextDocument.Empty();
+            }
+            else
+            {
+                var document = new TextDocument(lines);
+                return document;
+            }
         }
 
         private void Show(TextDocument document)
         {
+            if(document == null)
+                return;
+
             DocumentRender.Show(document);
+        }
+
+        private TextDocument OpenFileAtStartTime()
+        {
+            var latestFile = CommonSetting.Instance.LatestDocPath;
+
+            if (latestFile == null || !File.Exists(latestFile))
+            {
+                return TextDocument.Empty();
+            }
+            else
+            {
+                return OpenDocument(latestFile);
+            }
         }
 
         #endregion

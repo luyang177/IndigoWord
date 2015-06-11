@@ -1,5 +1,2 @@
-高级文本格式设置
 https://msdn.microsoft.com/zh-cn/express/ms754036(v=vs.71).aspx
-
-WPF 文本呈现
 http://www.cnblogs.com/Clingingboy/archive/2010/12/03/1895460.html

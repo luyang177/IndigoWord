@@ -12,8 +12,8 @@ Lua Editor
 C# Editor
 
 [TODO]
-Add button to start a new file.
 Caret change by mouse
+Add button to start a new file.
 Write word by keyborad and move caret forward.
 utf-8 support.
 Support scroll.
@@ -25,6 +25,9 @@ Show line number in the left.
 -----------------------------------------------------------
 -----------------------------------------------------------
 [ChangeLog]
+
+2015-06-11
+Open latest file automatically.
 
 2015-06-10
 Add button to open file.

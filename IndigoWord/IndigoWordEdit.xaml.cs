@@ -74,8 +74,13 @@ namespace IndigoWord
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            //KeyDown can be triggered
-            Focus();
+            if (!IsFocused)
+            {
+                //KeyDown can be triggered
+                Focus();
+            }
+
+
         }
 
         #endregion
