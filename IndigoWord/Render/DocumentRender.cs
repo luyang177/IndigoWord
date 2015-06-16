@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
 using IndigoWord.Core;
 using IndigoWord.LowFontApi;
+using IndigoWord.Operation.Behaviors;
 using IndigoWord.Utility;
 
 namespace IndigoWord.Render
@@ -67,6 +69,46 @@ namespace IndigoWord.Render
             TextLineInfoManager.Clear();
             DrawingElements.Clear();
             Layer.Clear();
+        }
+
+        //TODO
+        public Caret Caret { get; set; }
+
+        public void Hit(HitVisualParam param)
+        {
+            Debug.Assert(param.Visual != null);
+            Debug.Assert(DrawingElements.All(el => el.Visual != null));
+
+            var hitDrawingElement = DrawingElements.Single(el => el.Visual == param.Visual);
+            var logicLine = hitDrawingElement.LogicLine;
+
+            var neareatItem = logicLine.TextLines.SelectMany(tl =>
+            {
+                var info = TextLineInfoManager.Get(tl);
+                var top = logicLine.Top + info.Top;
+                return Enumerable.Range(0, tl.Length)
+                    .Select(n =>
+                    {
+                        var pos = info.StartCharPos + n;
+                        var bound = tl.GetTextBounds(pos, 1)[0];
+                        var rc = new Rect(bound.Rectangle.Left,
+                                          top,
+                                          bound.Rectangle.Width,
+                                          bound.Rectangle.Height);
+                        return new
+                        {
+                            Rect = rc,
+                            Column = pos
+                        };
+                    });
+            })
+            .OrderBy(obj => MathHelper.Distance(param.Position, obj.Rect.Center()))
+            .First();
+
+
+            Caret.Position = new TextPosition(logicLine.Line, neareatItem.Column);
+
+            //TODO update column info in status bar
         }
 
         #endregion

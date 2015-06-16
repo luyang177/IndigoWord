@@ -47,7 +47,7 @@ namespace IndigoWord.Render
          * DrawingElement knows LogicLine, but LogicLine doesn't know DrawingElement at all.
          * Means one LogicLine can render on many DrawingElements
          */
-        private LogicLine LogicLine { get; set; }
+        public LogicLine LogicLine { get; set; }
 
         #endregion
     }

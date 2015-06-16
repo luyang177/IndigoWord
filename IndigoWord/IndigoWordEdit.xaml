@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:render="clr-namespace:IndigoWord.Render"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:behaviors="clr-namespace:IndigoWord.Operation.Behaviors"
              mc:Ignorable="d" 
              d:DesignHeight="300" 
              d:DesignWidth="300"
@@ -40,11 +42,16 @@
                           Margin="10"
                           IsChecked="{Binding IsWrap}"
                           Focusable="False"/>            
-        </StackPanel>       
-        <AdornerDecorator ClipToBounds="True"
-                          Grid.Row="1">
-            <render:VisualHost x:Name="Host"/>
-        </AdornerDecorator>
+        </StackPanel>
+        <ContentControl Grid.Row="1"
+                        Focusable="False">
+            <i:Interaction.Behaviors>
+                <behaviors:HitDrawingVisualBehavior Command="{Binding HitCommand}"/>
+            </i:Interaction.Behaviors>
+            <AdornerDecorator ClipToBounds="True">
+                <render:VisualHost x:Name="Host"/>
+            </AdornerDecorator>
+        </ContentControl>
         <StatusBar Grid.Row="2"
                    Background="Purple">
             <StatusBarItem>

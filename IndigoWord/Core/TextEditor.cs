@@ -11,6 +11,7 @@ using System.Windows.Media.TextFormatting;
 using IndigoWord.Annotations;
 using IndigoWord.LowFontApi;
 using IndigoWord.Mvvm;
+using IndigoWord.Operation.Behaviors;
 using IndigoWord.Render;
 using IndigoWord.Utility;
 using Microsoft.Win32;
@@ -37,6 +38,9 @@ namespace IndigoWord.Core
             Show(Document);
 
             InitCaret(layerProvider, Document);
+
+            //TODO
+            DocumentRender.Caret = Caret;
 
             //set caret initial position
             Caret.Position = new TextPosition(0,0);
@@ -106,6 +110,22 @@ namespace IndigoWord.Core
                 Caret.Document = Document;
                 Caret.Position = new TextPosition(0, 0);
             }
+        }
+
+        #endregion
+
+        #region Hit Command
+
+        private ICommand _hitCommand;
+
+        public ICommand HitCommand
+        {
+            get { return _hitCommand ?? (_hitCommand = new RelayCommand<HitVisualParam>(Hit)); }
+        }
+
+        private void Hit(HitVisualParam param)
+        {
+            DocumentRender.Hit(param);
         }
 
         #endregion

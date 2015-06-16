@@ -2,6 +2,9 @@
 WPF TextRun
 
 [Issue]
+//TODO update column info in status bar
+where can I put Caret object?
+private public LogicLine LogicLine { get; set; }
 
 [Milestone]
 show hex
