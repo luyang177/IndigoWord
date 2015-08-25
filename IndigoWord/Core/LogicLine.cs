@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Media.TextFormatting;
 using IndigoWord.Render;
 
@@ -19,7 +20,9 @@ namespace IndigoWord.Core
         #endregion
 
         #region Properties
+
         public int Line { get; set; }
+
         public string Text { get; set; }
 
         private readonly List<TextLine> _textLines = new List<TextLine>();
@@ -30,6 +33,11 @@ namespace IndigoWord.Core
 
         //the top of its LogicLine, relative to the start of the document.
         public double Top { get; set; }
+
+        public double Bottom
+        {
+            get { return Top + TextLines.Sum(tl => tl.Height); }
+        }
 
         #endregion
 
@@ -42,12 +50,15 @@ namespace IndigoWord.Core
                 return false;
             }
 
+            var length = GetLength();
+
             return position.Column >= 0 &&
-                   position.Column < GetLength();
+                   position.Column < length;
         }
 
         public int GetLength()
         {
+            //since the last text line has more 1 pos, we -1
             var length = TextLines.Sum(tl => tl.Length) - 1;
             return length;
         }
@@ -122,6 +133,16 @@ namespace IndigoWord.Core
             var nextIndex = index - 1;
             return nextIndex >= 0 && nextIndex < TextLines.Count
                    ? TextLines[nextIndex] : null;
+        }
+
+        public TextLine FindTextLine(Point point)
+        {
+            return TextLines.SingleOrDefault(tl =>
+            {
+                var info = TextLineInfoManager.Get(tl);
+                var top = Top + info.Top;
+                return (point.Y >= top) && (point.Y <= top + tl.Height);
+            });            
         }
 
         #endregion

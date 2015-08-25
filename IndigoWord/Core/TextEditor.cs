@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Net.Mime;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Documents;
@@ -125,7 +126,13 @@ namespace IndigoWord.Core
 
         private void Hit(HitVisualParam param)
         {
-            DocumentRender.Hit(param);
+            var textPosition = DocumentRender.Hit(param);
+            if (textPosition == null)
+            {
+                return;
+            }
+
+            CaretPosition = textPosition;
         }
 
         #endregion

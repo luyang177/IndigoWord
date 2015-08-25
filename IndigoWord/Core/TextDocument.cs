@@ -123,6 +123,11 @@ namespace IndigoWord.Core
             return logicLine.Exist(position);
         }
 
+        public LogicLine FindLogicLine(Point point)
+        {
+            return Lines.SingleOrDefault(line => (point.Y >= line.Top) && (point.Y <= line.Bottom));
+        }
+
         #endregion
 
         #region Private Methods
@@ -247,13 +252,13 @@ namespace IndigoWord.Core
                 
             }
 
-            var col = nextTextLine.FindNearestColumn(caretRect);
+            var col = nextTextLine.FindClosestColumn(caretRect);
             return new TextPosition(nextLine, col);
         }
 
         #endregion
 
-        #region Private Properties And Fields
+        #region Private Properties and Fields
 
         private readonly Dictionary<int, LogicLine> _lines = new Dictionary<int, LogicLine>();
 

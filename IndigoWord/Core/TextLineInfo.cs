@@ -10,5 +10,8 @@
 
         //end char position in its logic line
         public int EndCharPos { get; set; }
+
+        //is last text line in its logic line
+        public bool IsLast { get; set; }
     }
 }

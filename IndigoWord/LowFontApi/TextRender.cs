@@ -39,18 +39,28 @@ namespace IndigoWord.LowFontApi
                     new GenericTextParagraphProperties(render, isWrap ? TextWrapping.Wrap : TextWrapping.NoWrap),
                     null);
 
-                TextLineInfoManager.Add(textLine, new TextLineInfo
+                var info = new TextLineInfo
                 {
                     Top = pos,
                     StartCharPos = textStorePosition,
-                    EndCharPos = textLine.Length
-                });
+                    EndCharPos = textStorePosition + textLine.Length - 1,
+                    IsLast = false
+                };
+                TextLineInfoManager.Add(textLine, info);
 
                 textLine.Draw(dc, new Point(0, pos), InvertAxes.None);
                 textStorePosition += textLine.Length;
                 pos += textLine.Height;
 
                 textLines.Add(textLine);
+
+                var isLastTextLine = !(textStorePosition < textStore.Text.Length);
+                if (isLastTextLine)
+                {
+                    //since the last TextLine's Length has more 1 pos, we -1
+                    info.EndCharPos -= 1;
+                    info.IsLast = true;
+                }
             }
 
             return textLines;

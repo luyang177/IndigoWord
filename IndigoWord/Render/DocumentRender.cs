@@ -74,41 +74,19 @@ namespace IndigoWord.Render
         //TODO
         public Caret Caret { get; set; }
 
-        public void Hit(HitVisualParam param)
+        public TextPosition Hit(HitVisualParam param)
         {
-            Debug.Assert(param.Visual != null);
             Debug.Assert(DrawingElements.All(el => el.Visual != null));
 
-            var hitDrawingElement = DrawingElements.Single(el => el.Visual == param.Visual);
-            var logicLine = hitDrawingElement.LogicLine;
-
-            var neareatItem = logicLine.TextLines.SelectMany(tl =>
+            if (param.Visual != null)
             {
-                var info = TextLineInfoManager.Get(tl);
-                var top = logicLine.Top + info.Top;
-                return Enumerable.Range(0, tl.Length)
-                    .Select(n =>
-                    {
-                        var pos = info.StartCharPos + n;
-                        var bound = tl.GetTextBounds(pos, 1)[0];
-                        var rc = new Rect(bound.Rectangle.Left,
-                                          top,
-                                          bound.Rectangle.Width,
-                                          bound.Rectangle.Height);
-                        return new
-                        {
-                            Rect = rc,
-                            Column = pos
-                        };
-                    });
-            })
-            .OrderBy(obj => MathHelper.Distance(param.Position, obj.Rect.Center()))
-            .First();
-
-
-            Caret.Position = new TextPosition(logicLine.Line, neareatItem.Column);
-
-            //TODO update column info in status bar
+                return FindHittedTextPosition(param);
+            }
+            else
+            {
+                //since param.Visual is null, we just find the closest text postition
+                return FindClosestTextPosition(param.Position);
+            }
         }
 
         #endregion
@@ -157,7 +135,57 @@ namespace IndigoWord.Render
             }
         }
 
+        private TextPosition FindHittedTextPosition(HitVisualParam param)
+        {
+            Debug.Assert(param.Visual != null);
 
+            if (Caret.IsCaret(param.Visual))
+            {
+                return Caret.Position;
+            }
+
+            //find hitted visual belongs to which LogicLine
+            var hitDrawingElement = DrawingElements.Single(el => el.Visual == param.Visual);
+            var logicLine = hitDrawingElement.LogicLine;
+            Debug.Assert(logicLine != null);
+
+            //find hitted visual belongs to which TextLine
+            var textLine = logicLine.FindTextLine(param.Position);
+            Debug.Assert(textLine != null);
+
+            var col = textLine.FindClosestColumn(param.Position);
+            return new TextPosition(logicLine.Line, col);            
+        }
+
+        private TextPosition FindClosestTextPosition(Point point)
+        {
+            //find point belongs to which LogicLine by height
+            var logicLine = Document.FindLogicLine(point);
+            Debug.Assert(logicLine != null);
+ 
+            //find point belongs to which TextLine by height
+            var textLine = logicLine.FindTextLine(point);
+            Debug.Assert(textLine != null);
+
+            if (point.X > textLine.WidthIncludingTrailingWhitespace)
+            {
+                //directly return the last position in this TextLine
+
+                var info = TextLineInfoManager.Get(textLine);
+
+                /*
+                 * "info.IsLast ? info.EndCharPos : info.EndCharPos + 1"
+                 * is used for selection multiple lines by draging mouse
+                 * like notepad++
+                 */
+                return new TextPosition(logicLine.Line, info.IsLast ? info.EndCharPos : info.EndCharPos + 1);
+            }
+            else
+            {
+                var col = textLine.FindClosestColumn(point);
+                return new TextPosition(logicLine.Line, col);
+            }
+        }
 
         #endregion
 

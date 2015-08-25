@@ -22,7 +22,7 @@ namespace IndigoWord.Operation.Behaviors
             if (AssociatedObject == null)
                 return;
 
-            AssociatedObject.MouseLeftButtonDown += OnMouseLeftButtonDown;
+            AssociatedObject.PreviewMouseLeftButtonDown += OnMouseLeftButtonDown;
         }
 
         protected override void OnDetaching()
@@ -32,7 +32,7 @@ namespace IndigoWord.Operation.Behaviors
             if (AssociatedObject == null)
                 return;
 
-            AssociatedObject.MouseLeftButtonDown -= OnMouseLeftButtonDown;
+            AssociatedObject.PreviewMouseLeftButtonDown -= OnMouseLeftButtonDown;
         }
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -56,16 +56,14 @@ namespace IndigoWord.Operation.Behaviors
                 return;
 
             var drawingVisual = hitResult.VisualHit as DrawingVisual;
-            if (drawingVisual != null)
+            var param = new HitVisualParam
             {
-                var param = new HitVisualParam
-                {
-                    Visual = drawingVisual,
-                    Position = pt
-                };
+                Visual = drawingVisual,
+                Position = pt
+            };
 
-                Command.Execute(param);
-            }
+            Command.Execute(param);
+            
         }
 
     }

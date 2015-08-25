@@ -69,6 +69,11 @@ namespace IndigoWord.Core
             Render();
         }
 
+        public bool IsCaret(Visual visual)
+        {
+            return Visual == visual;
+        }
+
         #endregion
 
         #region Private Properties And Fields

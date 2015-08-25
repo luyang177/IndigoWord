@@ -43,15 +43,16 @@
                           IsChecked="{Binding IsWrap}"
                           Focusable="False"/>            
         </StackPanel>
-        <ContentControl Grid.Row="1"
-                        Focusable="False">
+        <Grid Grid.Row="1"
+              Focusable="False"
+              Background="Transparent"> <!--Transparent make it trigger button down event-->
             <i:Interaction.Behaviors>
                 <behaviors:HitDrawingVisualBehavior Command="{Binding HitCommand}"/>
             </i:Interaction.Behaviors>
             <AdornerDecorator ClipToBounds="True">
-                <render:VisualHost x:Name="Host"/>
+                <render:VisualHost x:Name="Host" />
             </AdornerDecorator>
-        </ContentControl>
+        </Grid>
         <StatusBar Grid.Row="2"
                    Background="Purple">
             <StatusBarItem>
