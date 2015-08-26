@@ -8,7 +8,7 @@ using IndigoWord.Utility;
 
 namespace IndigoWord.Core
 {
-    class Caret
+    class Caret : ICaretPosition
     {
         #region Constructor
 
@@ -72,6 +72,18 @@ namespace IndigoWord.Core
         public bool IsCaret(Visual visual)
         {
             return Visual == visual;
+        }
+
+        #endregion
+
+        #region Implementation of ICaretPosition
+
+        //Already implement
+        //public Rect CaretRect { get; }
+
+        public TextPosition CaretPosition
+        {
+            get { return Position; }
         }
 
         #endregion
@@ -143,5 +155,7 @@ namespace IndigoWord.Core
         }
 
         #endregion
+
+
     }
 }

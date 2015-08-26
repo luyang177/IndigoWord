@@ -14,18 +14,17 @@ namespace IndigoWord.LowFontApi
     {
         public static IList<TextLine> Render(DrawingContext dc, 
                                              string text, 
+                                             FontRendering fontRender,
                                              bool isWrap)
         {
             var textLines = new List<TextLine>();
             int textStorePosition = 0;
             double pos = 0;
 
-            //TODO FontRendering can reuse?
-            var render = new FontRendering();
             var textStore = new CustomTextSource
             {
                 Text = text,
-                FontRendering = render
+                FontRendering = fontRender
             };
 
             var formatter = TextFormatter.Create();
@@ -36,7 +35,7 @@ namespace IndigoWord.LowFontApi
                     textStore,
                     textStorePosition,
                     30 * 6, //paragraphWidth only works for Wrap
-                    new GenericTextParagraphProperties(render, isWrap ? TextWrapping.Wrap : TextWrapping.NoWrap),
+                    new GenericTextParagraphProperties(fontRender, isWrap ? TextWrapping.Wrap : TextWrapping.NoWrap),
                     null);
 
                 var info = new TextLineInfo

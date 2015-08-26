@@ -65,21 +65,21 @@ namespace IndigoWord.Core
 
         public double GetXPosition(int column)
         {
-            var textLine = GetTextLine(column);
+            var textLine = FindTextLine(column);
             double xPos = textLine.GetDistanceFromCharacterHit(new CharacterHit(column, 0));
             return xPos;
         }
 
         public double GetTop(int column)
         {
-            var textLine = GetTextLine(column);
+            var textLine = FindTextLine(column);
             var info = TextLineInfoManager.Get(textLine);
             return Top + info.Top;
         }
 
         public double GetBottom(int column)
         {
-            var textLine = GetTextLine(column);
+            var textLine = FindTextLine(column);
             var info = TextLineInfoManager.Get(textLine);
             return Top + info.Top + textLine.Height;
         }
@@ -94,7 +94,24 @@ namespace IndigoWord.Core
             TextLines.Clear();
         }
 
-        public TextLine GetTextLine(int column)
+        public TextLine GetNextTextLine(TextLine textLine)
+        {
+            var index = TextLines.IndexOf(textLine);
+
+            var nextIndex = index + 1;
+            return nextIndex < TextLines.Count ? TextLines[nextIndex] : null;
+        }
+
+        public TextLine GetPreviousTextLine(TextLine textLine)
+        {
+            var index = TextLines.IndexOf(textLine);
+
+            var nextIndex = index - 1;
+            return nextIndex >= 0 && nextIndex < TextLines.Count
+                   ? TextLines[nextIndex] : null;
+        }
+
+        public TextLine FindTextLine(int column)
         {
             if (column < 0)
                 throw new ArgumentNullException("column < 0");
@@ -116,23 +133,6 @@ namespace IndigoWord.Core
             }
 
             throw new ArgumentException("TextLine not find");
-        }
-
-        public TextLine GetNextTextLine(TextLine textLine)
-        {
-            var index = TextLines.IndexOf(textLine);
-
-            var nextIndex = index + 1;
-            return nextIndex < TextLines.Count ? TextLines[nextIndex] : null;
-        }
-
-        public TextLine GetPreviousTextLine(TextLine textLine)
-        {
-            var index = TextLines.IndexOf(textLine);
-
-            var nextIndex = index - 1;
-            return nextIndex >= 0 && nextIndex < TextLines.Count
-                   ? TextLines[nextIndex] : null;
         }
 
         public TextLine FindTextLine(Point point)

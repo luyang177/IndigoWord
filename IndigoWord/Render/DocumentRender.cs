@@ -45,6 +45,13 @@ namespace IndigoWord.Render
             }
         }
 
+        private FontRendering _fontRendering = new FontRendering();
+        public FontRendering FontRendering
+        {
+            get { return _fontRendering; }
+            set { _fontRendering = value; }
+        }
+
         #endregion
 
         #region Public Methods
@@ -107,7 +114,7 @@ namespace IndigoWord.Render
                 DrawingElements.Add(newDrawingElement);
                 using (var dc = newDrawingElement.Visual.RenderOpen())
                 {
-                    var textLines = TextRender.Render(dc, logicLine.Text, IsWrap);
+                    var textLines = TextRender.Render(dc, logicLine.Text, FontRendering, IsWrap);
                     height = textLines.Sum(tl => tl.Height);
                     newDrawingElement.Height = height;
                     logicLine.AddTextLines(textLines);

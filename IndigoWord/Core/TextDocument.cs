@@ -205,7 +205,7 @@ namespace IndigoWord.Core
         private TextPosition DoGetVerticalMoveTextPosition(TextPosition position, Rect caretRect, PositionMoveType type)
         {
             var currentLogicLine = GetLogicLine(position.Line);
-            var currentTextLine = currentLogicLine.GetTextLine(position.Column);
+            var currentTextLine = currentLogicLine.FindTextLine(position.Column);
 
             TextLine nextTextLine;
             if (type == PositionMoveType.Down)

@@ -14,6 +14,9 @@ C# Editor
 
 [TODO]
 Write word by keyborad and move caret forward.
+KeyboardInputDispatcher
+Select characters by draging mouse.
+Save file.
 Add button to start a new file.
 utf-8 support.
 Support scroll.

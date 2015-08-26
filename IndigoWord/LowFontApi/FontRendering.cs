@@ -76,11 +76,13 @@ namespace IndigoWord.LowFontApi
       #endregion
 
       #region Private Fields
+
       private double _fontSize;
       private TextAlignment _alignment;
       private TextDecorationCollection _textDecorations;
       private Brush _textColor;
       private Typeface _typeface;
+
       #endregion
    }
 }

@@ -13,7 +13,7 @@
              FocusVisualStyle="{x:Null}"
              HorizontalAlignment="Left"
              VerticalAlignment="Top"
-             Loaded="OnLoaded"
+             Loaded="OnLoaded"  
              PreviewKeyDown="OnPreviewKeyDown"
              MouseLeftButtonDown="OnMouseLeftButtonDown">
     <UserControl.Resources>
@@ -30,7 +30,8 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <StackPanel Background="WhiteSmoke"
+        <StackPanel x:Name="MenuView"
+                    Background="WhiteSmoke"
                     Orientation="Horizontal">
             <Button Content="Open"
                     Margin="10"

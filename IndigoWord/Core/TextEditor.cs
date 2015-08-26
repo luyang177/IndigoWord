@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Net.Mime;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -45,6 +46,8 @@ namespace IndigoWord.Core
 
             //set caret initial position
             Caret.Position = new TextPosition(0,0);
+
+            KeyboardInputDispatcher = new KeyboardInputDispatcher();
         }
 
         #endregion
@@ -79,6 +82,16 @@ namespace IndigoWord.Core
             }
         }
 
+        public ICaretPosition CaretPositionProvider
+        {
+            get { return Caret; }
+        }
+
+        public FontRendering FontRendering
+        {
+            get { return DocumentRender.FontRendering; }
+        }
+
         #endregion
 
         #region Commands
@@ -109,7 +122,7 @@ namespace IndigoWord.Core
                 Document = OpenDocument(path);
                 Show(Document);
                 Caret.Document = Document;
-                Caret.Position = new TextPosition(0, 0);
+                CaretPosition = new TextPosition(0, 0);
             }
         }
 
@@ -163,7 +176,11 @@ namespace IndigoWord.Core
                 var pos = Document.GetUpLineTextPosition(Caret.Position, Caret.CaretRect);
                 CaretPosition = pos;
             }
+        }
 
+        public void OnTextInput(TextCompositionEventArgs e)
+        {
+            var text = e.Text;            
         }
 
         #endregion
@@ -175,6 +192,8 @@ namespace IndigoWord.Core
         private TextDocument Document { get; set; }
 
         private DocumentRender DocumentRender { get; set; }
+
+        private KeyboardInputDispatcher KeyboardInputDispatcher { get; set; }
 
         #endregion
 

@@ -27,6 +27,8 @@ namespace IndigoWord
     {
         private SimpleLayerProvider LayerProvider { get; set; }
 
+        private ImeSupport _ime;
+
         private TextEditor TextEditor { get; set; }
 
         public IndigoWordEdit()
@@ -44,6 +46,12 @@ namespace IndigoWord
 
             TextEditor = new TextEditor(LayerProvider);
 
+            /*
+             * I don't know why I can't receive message WM_IME_COMPOSITION for just the Grid of text
+             * but it's ok for this(IndigoWordEdit), so I have to pass MenuView.ActualHeight to ImeSupport, and calculate offset by myself.
+             */
+            _ime = new ImeSupport(this, MenuView.ActualHeight, TextEditor.CaretPositionProvider, TextEditor.FontRendering);
+            
             DataContext = TextEditor;
         }
 
@@ -72,6 +80,12 @@ namespace IndigoWord
             TextEditor.OnKeyDown(e.Key);
         }
 
+        protected override void OnTextInput(TextCompositionEventArgs e)
+        {
+            base.OnTextInput(e);
+            TextEditor.OnTextInput(e);
+        }
+
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!IsFocused)
@@ -79,8 +93,6 @@ namespace IndigoWord
                 //KeyDown can be triggered
                 Focus();
             }
-
-
         }
 
         #endregion
