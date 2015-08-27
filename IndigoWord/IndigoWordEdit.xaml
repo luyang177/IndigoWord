@@ -44,9 +44,12 @@
                           IsChecked="{Binding IsWrap}"
                           Focusable="False"/>            
         </StackPanel>
+
+        <!--Transparent make it trigger button down event-->
         <Grid Grid.Row="1"
               Focusable="False"
-              Background="Transparent"> <!--Transparent make it trigger button down event-->
+              Background="Transparent"   
+              Cursor="IBeam"> 
             <i:Interaction.Behaviors>
                 <behaviors:HitDrawingVisualBehavior Command="{Binding HitCommand}"/>
             </i:Interaction.Behaviors>

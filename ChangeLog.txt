@@ -2,7 +2,7 @@
 WPF TextRun
 
 [Issue]
-where can I put Caret object?
+-- where can I put Caret object?
 
 [Milestone]
 show hex
@@ -28,6 +28,9 @@ Show line number in the left.
 -----------------------------------------------------------
 -----------------------------------------------------------
 [ChangeLog]
+
+2015-08-26
+Support IME.
 
 2015-08-25
 Hit character by mouse.

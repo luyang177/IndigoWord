@@ -144,9 +144,9 @@ namespace IndigoWord.Core
             var logicLine = Document.GetLogicLine(position.Line);
 
             int column = position.Column;
-            var xPos = logicLine.GetXPosition(column);
-            double lineTop = logicLine.GetTop(column);
-            double lineBottom = logicLine.GetBottom(column);
+            var xPos = logicLine.GetDistanceFromColumn(column, position.IsAtEndOfLine);
+            double lineTop = logicLine.GetTop(column, position.IsAtEndOfLine);
+            double lineBottom = logicLine.GetBottom(column, position.IsAtEndOfLine);
 
             return new Rect(xPos,
                             lineTop,

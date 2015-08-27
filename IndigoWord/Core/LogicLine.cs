@@ -52,34 +52,49 @@ namespace IndigoWord.Core
 
             var length = GetLength();
 
-            return position.Column >= 0 &&
-                   position.Column < length;
+            return position.Column >= 0 && position.Column < length;
         }
 
         public int GetLength()
-        {
-            //since the last text line has more 1 pos, we -1
-            var length = TextLines.Sum(tl => tl.Length) - 1;
+        {            
+            var length = TextLines.Sum(tl => tl.Length);
+
+            if (Text.EndsWith("\r\n"))
+            {
+                length--;
+            }
+
             return length;
         }
 
-        public double GetXPosition(int column)
-        {
-            var textLine = FindTextLine(column);
+        public double GetDistanceFromColumn(int column, bool isAtEndOfLine)
+        {           
+            var textLine = FindTextLine(column, isAtEndOfLine);
             double xPos = textLine.GetDistanceFromCharacterHit(new CharacterHit(column, 0));
+
+            if (isAtEndOfLine)
+            {
+                /*
+                 * When mouse hit the last position of a TextLine, we will display the trailing whitespace if it has
+                 * however, when input key down, up, left and right, we will [not] display the trailing whitespace
+                 */
+                var whiteSpace = textLine.WidthIncludingTrailingWhitespace - textLine.Width;
+                xPos += whiteSpace;
+            }
+
             return xPos;
         }
 
-        public double GetTop(int column)
+        public double GetTop(int column, bool isAtEndOfLine)
         {
-            var textLine = FindTextLine(column);
+            var textLine = FindTextLine(column, isAtEndOfLine);
             var info = TextLineInfoManager.Get(textLine);
             return Top + info.Top;
         }
 
-        public double GetBottom(int column)
+        public double GetBottom(int column, bool isAtEndOfLine)
         {
-            var textLine = FindTextLine(column);
+            var textLine = FindTextLine(column, isAtEndOfLine);
             var info = TextLineInfoManager.Get(textLine);
             return Top + info.Top + textLine.Height;
         }
@@ -111,7 +126,7 @@ namespace IndigoWord.Core
                    ? TextLines[nextIndex] : null;
         }
 
-        public TextLine FindTextLine(int column)
+        public TextLine FindTextLine(int column, bool isAtEndOfLine)
         {
             if (column < 0)
                 throw new ArgumentNullException("column < 0");
@@ -120,15 +135,22 @@ namespace IndigoWord.Core
                 throw new ArgumentException("column > GetLength()");
 
             int line = column;
+            TextLine lastTextLine = null;
             foreach (var textLine in TextLines)
             {
                 if (line < textLine.Length)
                 {
+                    if (isAtEndOfLine && lastTextLine != null)
+                    {
+                        return lastTextLine;
+                    }
+
                     return textLine;
                 }
                 else
                 {
                     line -= textLine.Length;
+                    lastTextLine = textLine;
                 }
             }
 

@@ -2,6 +2,8 @@
 {
     class TextLineInfo
     {
+        public LogicLine LogicLine { get; set; }
+
         //vertical top position in its logic line
         public double Top { get; set; }
 

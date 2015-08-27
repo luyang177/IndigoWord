@@ -13,6 +13,7 @@ namespace IndigoWord.LowFontApi
     static class TextRender
     {
         public static IList<TextLine> Render(DrawingContext dc, 
+                                             LogicLine logicLine,   
                                              string text, 
                                              FontRendering fontRender,
                                              bool isWrap)
@@ -40,6 +41,7 @@ namespace IndigoWord.LowFontApi
 
                 var info = new TextLineInfo
                 {
+                    LogicLine = logicLine,
                     Top = pos,
                     StartCharPos = textStorePosition,
                     EndCharPos = textStorePosition + textLine.Length - 1,

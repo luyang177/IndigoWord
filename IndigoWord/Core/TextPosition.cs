@@ -3,7 +3,8 @@
 namespace IndigoWord.Core
 {
     /*
-     * Represent line and column.
+     * Represent position in document
+     * Line and Column are refer to LogiciLine.
      */
     class TextPosition : IEquatable<TextPosition>
     {
@@ -11,6 +12,14 @@ namespace IndigoWord.Core
         {
             Line = line;
             Column = column;
+            IsAtEndOfLine = false;
+        }
+
+        public TextPosition(int line, int column, bool isAtEndOfLine)
+        {
+            Line = line;
+            Column = column;
+            IsAtEndOfLine = isAtEndOfLine;
         }
 
         public int Line { get; set; }
@@ -18,11 +27,20 @@ namespace IndigoWord.Core
         public int Column { get; set; }
 
         /*
-         * start from 1
+         * When word-wrap is enabled and a line is wrapped at a position where there is no space character;
+         * then both the end of the first TextLine and the beginning of the second TextLine
+         * refer to the same position in the document, and also have the same Column.
+         * In this case, the IsAtEndOfLine property is used to distinguish between the two cases:
+         * the value <c>true</c> indicates that the position refers to the end of the previous TextLine;
+         * the value <c>false</c> indicates that the position refers to the beginning of the next TextLine.
+         * 
+         * If this position is not at such a wrapping position, the value of this property has no effect.
          */
+        public bool IsAtEndOfLine { get; set; }
+
         public override string ToString()
         {
-            return string.Format("Line: {0}, Column: {1}", Line + 1, Column + 1);
+            return string.Format("Line: {0}, Column: {1}", Line, Column);
         }
 
         #region Implementation of IEquatable<T>

@@ -205,7 +205,9 @@ namespace IndigoWord.Core
         private TextPosition DoGetVerticalMoveTextPosition(TextPosition position, Rect caretRect, PositionMoveType type)
         {
             var currentLogicLine = GetLogicLine(position.Line);
-            var currentTextLine = currentLogicLine.FindTextLine(position.Column);
+
+            //VerticalMove can not move to the position which isAtEndOfLine is true
+            var currentTextLine = currentLogicLine.FindTextLine(position.Column, false);    
 
             TextLine nextTextLine;
             if (type == PositionMoveType.Down)
@@ -252,7 +254,7 @@ namespace IndigoWord.Core
                 
             }
 
-            var col = nextTextLine.FindClosestColumn(caretRect);
+            var col = nextTextLine.FindClosestColumn(caretRect, false);
             return new TextPosition(nextLine, col);
         }
 

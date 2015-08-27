@@ -114,7 +114,7 @@ namespace IndigoWord.Render
                 DrawingElements.Add(newDrawingElement);
                 using (var dc = newDrawingElement.Visual.RenderOpen())
                 {
-                    var textLines = TextRender.Render(dc, logicLine.Text, FontRendering, IsWrap);
+                    var textLines = TextRender.Render(dc, logicLine, logicLine.Text, FontRendering, IsWrap);
                     height = textLines.Sum(tl => tl.Height);
                     newDrawingElement.Height = height;
                     logicLine.AddTextLines(textLines);
@@ -160,7 +160,7 @@ namespace IndigoWord.Render
             var textLine = logicLine.FindTextLine(param.Position);
             Debug.Assert(textLine != null);
 
-            var col = textLine.FindClosestColumn(param.Position);
+            var col = textLine.FindClosestColumn(param.Position, true);
             return new TextPosition(logicLine.Line, col);            
         }
 
@@ -174,23 +174,22 @@ namespace IndigoWord.Render
             var textLine = logicLine.FindTextLine(point);
             Debug.Assert(textLine != null);
 
+            var info = TextLineInfoManager.Get(textLine);
             if (point.X > textLine.WidthIncludingTrailingWhitespace)
             {
                 //directly return the last position in this TextLine
 
-                var info = TextLineInfoManager.Get(textLine);
+                
 
-                /*
-                 * "info.IsLast ? info.EndCharPos : info.EndCharPos + 1"
-                 * is used for selection multiple lines by draging mouse
-                 * like notepad++
-                 */
-                return new TextPosition(logicLine.Line, info.IsLast ? info.EndCharPos : info.EndCharPos + 1);
+                return new TextPosition(logicLine.Line, 
+                    info.IsLast ? info.EndCharPos : info.EndCharPos + 1,
+                    !info.IsLast);
             }
             else
             {
-                var col = textLine.FindClosestColumn(point);
-                return new TextPosition(logicLine.Line, col);
+                var col = textLine.FindClosestColumn(point, true);
+                var isAtEndOfLine = col == info.EndCharPos + 1;
+                return new TextPosition(logicLine.Line, col, isAtEndOfLine);
             }
         }
 
@@ -203,7 +202,7 @@ namespace IndigoWord.Render
         private TextDocument Document { get; set; }
 
         private List<DrawingElement> _drawingElements = new List<DrawingElement>();
-        public List<DrawingElement> DrawingElements
+        private List<DrawingElement> DrawingElements
         {
             get { return _drawingElements; }
             set { _drawingElements = value; }
