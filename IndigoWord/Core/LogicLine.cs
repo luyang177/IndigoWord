@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.TextFormatting;
-using IndigoWord.Render;
 
 namespace IndigoWord.Core
 {
@@ -159,6 +159,13 @@ namespace IndigoWord.Core
 
         public TextLine FindTextLine(Point point)
         {
+            var lastLine = TextLines.Last();
+            var lastInfo = TextLineInfoManager.Get(lastLine);
+            if (point.Y > Top + lastInfo.Top + lastLine.Height)
+            {
+                return lastLine;
+            }
+
             return TextLines.SingleOrDefault(tl =>
             {
                 var info = TextLineInfoManager.Get(tl);
@@ -166,6 +173,47 @@ namespace IndigoWord.Core
                 return (point.Y >= top) && (point.Y <= top + tl.Height);
             });            
         }
+
+        /*
+         * Split this logicLine by /r, /n and /r/n
+         * return IList<LogicLine> which the first element is always this logicLine
+         */
+        public IList<LogicLine> Split()
+        {
+            //because once OpenDocument, we add Environment.NewLine to each LogicLine
+            Debug.Assert(Text.EndsWith(Environment.NewLine));
+
+            var text = Text;
+            text = text.Replace("\r\n", "\r");
+            var splits = text.Split(new[] { '\r', '\n' }).ToList();
+
+            //the last element is "" since each LogicLine end with Environment.NewLine
+            splits.RemoveAt(splits.Count - 1);
+
+            var list = new List<LogicLine>
+            {
+                this
+            };
+            Text = splits.First();
+
+            int lineNumber = Line + 1;
+            for (int n = 1; n < splits.Count; n++)
+            {
+                var line = new LogicLine(lineNumber, splits[n]);
+                list.Add(line);
+                lineNumber++;
+            }
+
+            //the first element is always the given logicLine         
+            Debug.Assert(list.Count >= 1);
+
+            foreach (var line in list)
+            {
+                line.Text += Environment.NewLine;
+            }
+
+            return list;
+        }        
 
         #endregion
 

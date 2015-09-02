@@ -9,8 +9,8 @@ using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
 using IndigoWord.Core;
 using IndigoWord.LowFontApi;
-using IndigoWord.Operation.Behaviors;
 using IndigoWord.Utility;
+using IndigoWord.Utility.Bahaviors;
 
 namespace IndigoWord.Render
 {
@@ -58,6 +58,8 @@ namespace IndigoWord.Render
 
         public void Show(TextDocument document)
         {
+            Debug.Assert(document != null);
+
             double pos = 0;
             foreach (var logicLine in document.Lines)
             {
@@ -71,11 +73,54 @@ namespace IndigoWord.Render
             Document = document;
         }
 
+        public void Show(LogicLine logicLine, bool isPositionBelowMandatory)
+        {
+            Debug.Assert(logicLine != null);
+            Debug.Assert(Document != null);
+            Debug.Assert(Document.Contains(logicLine));
+
+            Render(logicLine);
+
+            if (IsWrap || isPositionBelowMandatory)
+            {
+                //Position those LogicLines which below this given logicLine.
+                PositionBelow(logicLine);
+            }
+        }
+
+        public void Show(IList<LogicLine> logicLines)
+        {
+            Debug.Assert(logicLines != null);
+            if (!logicLines.Any())
+            {
+                return;
+            }
+
+            Debug.Assert(Document != null);
+            Debug.Assert(logicLines.All(line => Document.Contains(line)));
+
+            foreach (var line in logicLines)
+            {
+                Render(line);
+            }
+            
+            PositionBelow(logicLines.First());
+        }
+
         public void Reset()
         {
             TextLineInfoManager.Clear();
             DrawingElements.Clear();
             Layer.Clear();
+        }
+
+        public void Remove(LogicLine logicLine)
+        {
+            Debug.Assert(logicLine != null);
+
+            var drawingElement = DrawingElements.Single(element => element.Exist(logicLine));
+            Layer.Remove(drawingElement.Visual);
+            DrawingElements.Remove(drawingElement);
         }
 
         //TODO
@@ -96,6 +141,27 @@ namespace IndigoWord.Render
             }
         }
 
+        public void PositionBelow(LogicLine logicLine)
+        {
+            var startElement = DrawingElements.First(el => el.Exist(logicLine));
+            var index = DrawingElements.IndexOf(startElement);
+            var targetDrawingElements = DrawingElements.GetRange(index, DrawingElements.Count - index);
+
+            double pos = logicLine.Top;
+            foreach (var drawingElement in targetDrawingElements)
+            {
+                var visual = drawingElement.Visual;
+                var transform = visual.Transform as TranslateTransform;
+                if (transform == null || !transform.X.CloseTo(0) || !transform.Y.CloseTo(pos))
+                {
+                    visual.Transform = new TranslateTransform(0, pos);
+                    visual.Transform.Freeze();
+                }
+                drawingElement.LogicLine.Top = pos;
+                pos += drawingElement.Height;
+            }
+        }
+
         #endregion
 
         #region Private Methods
@@ -106,21 +172,43 @@ namespace IndigoWord.Render
          */
         private double Render(LogicLine logicLine)
         {
-            double height = 0;
             var drawingElement = DrawingElements.SingleOrDefault(element => element.Exist(logicLine));
-            if (drawingElement == null)
-            {
-                var newDrawingElement = new DrawingElement(logicLine);
-                DrawingElements.Add(newDrawingElement);
-                using (var dc = newDrawingElement.Visual.RenderOpen())
-                {
-                    var textLines = TextRender.Render(dc, logicLine, logicLine.Text, FontRendering, IsWrap);
-                    height = textLines.Sum(tl => tl.Height);
-                    newDrawingElement.Height = height;
-                    logicLine.AddTextLines(textLines);
-                }
+            var height = drawingElement == null ? RenderNewLine(logicLine) : RenderOldLine(logicLine, drawingElement);
+            return height;
+        }
 
-                Layer.Add(newDrawingElement.Visual);
+        private double RenderNewLine(LogicLine logicLine)
+        {
+            double height = 0;
+            var newDrawingElement = new DrawingElement(logicLine);
+            DrawingElements.Insert(logicLine.Line, newDrawingElement);
+            using (var dc = newDrawingElement.Visual.RenderOpen())
+            {
+                var textLines = TextRender.Render(dc, logicLine, logicLine.Text, FontRendering, IsWrap);
+                height = textLines.Sum(tl => tl.Height);
+                newDrawingElement.Height = height;
+                logicLine.AddTextLines(textLines);
+            }
+
+            Layer.Add(newDrawingElement.Visual);
+
+            return height;
+        }
+
+        private double RenderOldLine(LogicLine logicLine, DrawingElement drawingElement)
+        {
+            Debug.Assert(drawingElement != null);
+
+            logicLine.RemoveTextLines();
+            TextLineInfoManager.Remove(logicLine);
+
+            double height = 0;
+            using (var dc = drawingElement.Visual.RenderOpen())
+            {
+                var textLines = TextRender.Render(dc, logicLine, logicLine.Text, FontRendering, IsWrap);
+                height = textLines.Sum(tl => tl.Height);
+                drawingElement.Height = height;
+                logicLine.AddTextLines(textLines);
             }
 
             return height;
@@ -142,6 +230,8 @@ namespace IndigoWord.Render
             }
         }
 
+
+
         private TextPosition FindHittedTextPosition(HitVisualParam param)
         {
             Debug.Assert(param.Visual != null);
@@ -152,7 +242,7 @@ namespace IndigoWord.Render
             }
 
             //find hitted visual belongs to which LogicLine
-            var hitDrawingElement = DrawingElements.Single(el => el.Visual == param.Visual);
+            var hitDrawingElement = DrawingElements.Single(el => ReferenceEquals(el.Visual, param.Visual));
             var logicLine = hitDrawingElement.LogicLine;
             Debug.Assert(logicLine != null);
 
@@ -161,7 +251,9 @@ namespace IndigoWord.Render
             Debug.Assert(textLine != null);
 
             var col = textLine.FindClosestColumn(param.Position, true);
-            return new TextPosition(logicLine.Line, col);            
+            var info = TextLineInfoManager.Get(textLine);
+            var isAtEndOfLine = col == info.EndCharPos + 1;
+            return new TextPosition(logicLine.Line, col, isAtEndOfLine);            
         }
 
         private TextPosition FindClosestTextPosition(Point point)
@@ -178,9 +270,6 @@ namespace IndigoWord.Render
             if (point.X > textLine.WidthIncludingTrailingWhitespace)
             {
                 //directly return the last position in this TextLine
-
-                
-
                 return new TextPosition(logicLine.Line, 
                     info.IsLast ? info.EndCharPos : info.EndCharPos + 1,
                     !info.IsLast);
@@ -201,11 +290,10 @@ namespace IndigoWord.Render
 
         private TextDocument Document { get; set; }
 
-        private List<DrawingElement> _drawingElements = new List<DrawingElement>();
+        private readonly List<DrawingElement> _drawingElements = new List<DrawingElement>();
         private List<DrawingElement> DrawingElements
         {
             get { return _drawingElements; }
-            set { _drawingElements = value; }
         }
 
         #endregion

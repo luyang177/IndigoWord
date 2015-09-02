@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Windows.Media.TextFormatting;
+using System.Linq;
+using IndigoWord.Utility;
 
 namespace IndigoWord.Core
 {
@@ -23,6 +25,14 @@ namespace IndigoWord.Core
         public static void Clear()
         {
             _infos.Clear();
+        }
+
+        /*
+         * Remove all TextLines belongs to the given logicLine
+         */
+        public static void Remove(LogicLine logicLine)
+        {
+            _infos.RemoveAll((key, value) => value.LogicLine == logicLine);
         }
     }
 }

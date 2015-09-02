@@ -2,12 +2,12 @@
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace IndigoWord.Utility
+namespace IndigoWord.LowFontApi
 {
 	/// <summary>
-	/// Wrapper around Win32 functions.
+	/// Wrapper around CaretNativeWrapper functions.
 	/// </summary>
-	static class Win32
+	static class CaretNativeWrapper
 	{
 		/// <summary>
 		/// Gets the caret blink time.

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
+using IndigoWord.LowFontApi;
 using IndigoWord.Render;
 using IndigoWord.Utility;
 
@@ -108,7 +109,7 @@ namespace IndigoWord.Core
 
         private void StartBlinkAnimation()
         {
-            var blinkTime = Win32.CaretBlinkTime;
+            var blinkTime = CaretNativeWrapper.CaretBlinkTime;
             Blink = true; 
             // This is important if blinking is disabled (system reports a negative blinkTime)
             if (blinkTime.TotalMilliseconds > 0)
@@ -141,7 +142,7 @@ namespace IndigoWord.Core
         {
             Debug.Assert(Document.VerifyTextPosition(position));
 
-            var logicLine = Document.GetLogicLine(position.Line);
+            var logicLine = Document.FindLogicLine(position.Line);
 
             int column = position.Column;
             var xPos = logicLine.GetDistanceFromColumn(column, position.IsAtEndOfLine);

@@ -3,19 +3,15 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Net.Mime;
 using System.Runtime.CompilerServices;
 using System.Windows;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.TextFormatting;
 using IndigoWord.Annotations;
+using IndigoWord.Edit;
 using IndigoWord.LowFontApi;
 using IndigoWord.Mvvm;
-using IndigoWord.Operation.Behaviors;
 using IndigoWord.Render;
-using IndigoWord.Utility;
+using IndigoWord.Utility.Bahaviors;
 using Microsoft.Win32;
 
 namespace IndigoWord.Core
@@ -37,7 +33,7 @@ namespace IndigoWord.Core
             InitRender(layerProvider);
 
             Document = OpenFileAtStartTime();
-            Show(Document);
+            DocumentRender.Show(Document);
 
             InitCaret(layerProvider, Document);
 
@@ -47,7 +43,7 @@ namespace IndigoWord.Core
             //set caret initial position
             Caret.Position = new TextPosition(0,0);
 
-            KeyboardInputDispatcher = new KeyboardInputDispatcher();
+            TextInputProcessorFactory = new TextInputProcessorFactory();
         }
 
         #endregion
@@ -119,8 +115,8 @@ namespace IndigoWord.Core
                 var path = openFileDialog.FileName;
 
                 DocumentRender.Reset();
-                Document = OpenDocument(path);
-                Show(Document);
+                Document = TextDocument.Open(path);
+                DocumentRender.Show(Document);
                 Caret.Document = Document;
                 CaretPosition = new TextPosition(0, 0);
             }
@@ -180,7 +176,21 @@ namespace IndigoWord.Core
 
         public void OnTextInput(TextCompositionEventArgs e)
         {
-            var text = e.Text;            
+            var text = e.Text;
+            if (text == null)
+            {
+                return;
+            }
+
+            var textProcessor = TextInputProcessorFactory.Get(text);
+            var param = new TextInputProcessorParam
+            {
+                Document = Document,
+                Render = DocumentRender,
+                Position = Caret.Position,
+                Text = text
+            };
+            CaretPosition = textProcessor.Process(param);
         }
 
         #endregion
@@ -193,7 +203,7 @@ namespace IndigoWord.Core
 
         private DocumentRender DocumentRender { get; set; }
 
-        private KeyboardInputDispatcher KeyboardInputDispatcher { get; set; }
+        private TextInputProcessorFactory TextInputProcessorFactory { get; set; }
 
         #endregion
 
@@ -210,52 +220,6 @@ namespace IndigoWord.Core
             Caret = new Caret(layerProvider, document);
         }
 
-        private TextDocument OpenDocument(string path)
-        {
-            if (!File.Exists(path))
-            {
-                MessageBox.Show("File: {0} isn't exist",path);
-                return null;
-            }
-
-            var lines = new List<LogicLine>();
-            using (var sr = File.OpenText(path))
-            {
-                var s = "";
-                int line = 0;
-                while ((s = sr.ReadLine()) != null)
-                {
-                    s += Environment.NewLine;
-
-                    var logicLine = new LogicLine(line, s);
-                    lines.Add(logicLine);
-                    
-                    line++;
-                }
-            }
-
-            CommonSetting.Instance.LatestDocPath = path;
-            CommonSetting.Save();
-
-            if (lines.Count == 0)
-            {
-                return TextDocument.Empty();
-            }
-            else
-            {
-                var document = new TextDocument(lines);
-                return document;
-            }
-        }
-
-        private void Show(TextDocument document)
-        {
-            if(document == null)
-                return;
-
-            DocumentRender.Show(document);
-        }
-
         private TextDocument OpenFileAtStartTime()
         {
             var latestFile = CommonSetting.Instance.LatestDocPath;
@@ -266,7 +230,7 @@ namespace IndigoWord.Core
             }
             else
             {
-                return OpenDocument(latestFile);
+                return TextDocument.Open(latestFile);
             }
         }
 

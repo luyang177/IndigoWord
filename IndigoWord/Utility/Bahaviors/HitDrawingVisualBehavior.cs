@@ -1,10 +1,8 @@
 ﻿using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Input;
-using System.Windows.Interactivity;
 using System.Windows.Media;
 
-namespace IndigoWord.Operation.Behaviors
+namespace IndigoWord.Utility.Bahaviors
 {
     public sealed class HitVisualParam
     {

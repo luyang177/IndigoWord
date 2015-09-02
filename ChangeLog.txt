@@ -2,8 +2,11 @@
 WPF TextRun
 
 [Issue]
+-- TODO Add assert or unit test for abstract methods
 -- where can I put Caret object?
-
+-- In wrap, type space in the beginning of a TextLine only add space to the previous TextLine. 
+   AvalonEdit and WPS have the same issue but notepad++ hasn't.
+   
 [Milestone]
 show hex
 XAML editor and show ui automatically
@@ -13,21 +16,23 @@ Lua Editor
 C# Editor
 
 [TODO]
-Write word by keyborad and move caret forward.
-KeyboardInputDispatcher
+Type all keys include delete, home, end etc.
+Make a good looking tool bar.
 Select characters by draging mouse.
 Save file.
+Copy and Paste
 Add button to start a new file.
-utf-8 support.
 Support scroll.
 Vitual scroll.
-UnitTest.
 Current line selection backgroud, consider NoWrap/Wrap.
 Show line number in the left.
 
 -----------------------------------------------------------
 -----------------------------------------------------------
 [ChangeLog]
+
+2015-09-02
+Type words by keyborad include Key enter, backspace, space, tab.
 
 2015-08-26
 Support IME.

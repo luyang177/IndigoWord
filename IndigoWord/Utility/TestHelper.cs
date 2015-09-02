@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using IndigoWord.Annotations;
 
-namespace IndigoWord.Core
+namespace IndigoWord.Utility
 {
-    interface IOperationHandlerFactory
+    class TestHelper
     {
-        
+        public static readonly string TestDataFolder = "TestData";
     }
 }

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interactivity;
 
-namespace IndigoWord.Operation.Behaviors
+namespace IndigoWord.Utility.Bahaviors
 {
     class BehaviorBase<T> : Behavior<T> where T : UIElement
     {

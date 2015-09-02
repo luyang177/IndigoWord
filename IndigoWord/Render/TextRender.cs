@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,8 +8,9 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
 using IndigoWord.Core;
+using IndigoWord.LowFontApi;
 
-namespace IndigoWord.LowFontApi
+namespace IndigoWord.Render
 {
     static class TextRender
     {
@@ -55,11 +57,13 @@ namespace IndigoWord.LowFontApi
 
                 textLines.Add(textLine);
 
-                var isLastTextLine = !(textStorePosition < textStore.Text.Length);
+                var isLastTextLine = textStorePosition >= textStore.Text.Length;
                 if (isLastTextLine)
                 {
-                    //since the last TextLine's Length has more 1 pos, we -1
-                    info.EndCharPos -= 1;
+                    if (text.EndsWith("\r\n"))
+                    {
+                        info.EndCharPos--;
+                    }
                     info.IsLast = true;
                 }
             }

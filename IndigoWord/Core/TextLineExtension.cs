@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.TextFormatting;
 using IndigoWord.Core;
+using IndigoWord.Utility;
 
-namespace IndigoWord.Utility
+namespace IndigoWord.Core
 {
     static class TextLineExtension
     {

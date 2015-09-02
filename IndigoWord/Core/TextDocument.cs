@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.TextFormatting;
 using IndigoWord.Utility;
+using Microsoft.Win32;
+using NUnit.Framework;
 
 namespace IndigoWord.Core
 {
@@ -38,6 +41,73 @@ namespace IndigoWord.Core
             return doc;
         }
 
+        public static TextDocument Open(string path)
+        {
+            if (!File.Exists(path))
+            {
+                MessageBox.Show("File: {0} isn't exist", path);
+                return null;
+            }
+
+            var lines = new List<LogicLine>();
+            using (var sr = File.OpenText(path))
+            {
+                var s = "";
+                int line = 0;
+                while ((s = sr.ReadLine()) != null)
+                {
+                    //ensure caret can reach the right of the last character
+                    s += Environment.NewLine;
+
+                    var logicLine = new LogicLine(line, s);
+                    lines.Add(logicLine);
+
+                    line++;
+                }
+            }
+
+            CommonSetting.Instance.LatestDocPath = path;
+            CommonSetting.Save();
+
+            if (lines.Count == 0)
+            {
+                return Empty();
+            }
+            else
+            {
+                var document = new TextDocument(lines);
+                return document;
+            }            
+        }
+
+        public static TextDocument Open(IList<string> stringData)
+        {
+            if (stringData == null)
+            {
+                throw new ArgumentNullException("stringData");
+            }
+
+            if (!stringData.Any())
+            {
+                return Empty();
+            }
+
+            var lines = new List<LogicLine>();
+            int line = 0;
+            foreach (var str in stringData)
+            {
+                var s = str + Environment.NewLine;
+                var logicLine = new LogicLine(line, s);
+                lines.Add(logicLine);
+
+                line++;
+                
+            }
+
+            var document = new TextDocument(lines);
+            return document;                     
+        }
+
         private TextDocument()
         {
             
@@ -56,14 +126,36 @@ namespace IndigoWord.Core
 
         #region Public Methods
 
-        public bool ExistLine(int line)
+        public bool Contains(int line)
         {
             return _lines.ContainsKey(line);
         }
 
-        public LogicLine GetLogicLine(int line)
+        public bool Contains(LogicLine logicLine)
+        {
+            return _lines.ContainsValue(logicLine);
+        }
+
+        public LogicLine FindLogicLine(int line)
         {
             return _lines[line];
+        }
+
+        public LogicLine FindLogicLine(Point point)
+        {
+            var lastLine = Lines.Last();
+            if (point.Y >= lastLine.Bottom)
+            {
+                return lastLine;
+            }
+
+            var findLine = Lines.FirstOrDefault(line => (point.Y >= line.Top) && (point.Y <= line.Bottom));
+            if (findLine == null)
+            {
+                throw new NullReferenceException("findLine, perhaps the TextLines which in this Lines count is 0, cause the line.Top == line.Bottom");
+            }
+
+            return findLine;
         }
 
         public void Reset()
@@ -116,17 +208,43 @@ namespace IndigoWord.Core
 
         public bool VerifyTextPosition(TextPosition position)
         {
-            if (!ExistLine(position.Line))
+            if (!Contains(position.Line))
                 return false;
 
-            var logicLine = GetLogicLine(position.Line);
+            var logicLine = FindLogicLine(position.Line);
             return logicLine.Exist(position);
         }
 
-        public LogicLine FindLogicLine(Point point)
+        /*
+         * Insert newLines from the index
+         */
+        public void InsertLines(int index, IList<LogicLine> insertLines)
         {
-            return Lines.SingleOrDefault(line => (point.Y >= line.Top) && (point.Y <= line.Bottom));
+            if (!insertLines.Any())
+            {
+                return;
+            }
+
+            _lines.InsertAndShift(index, insertLines);
+
+            for (int i = index; i < _lines.Count; i++)
+            {
+                _lines[i].Line = i;
+            }
         }
+
+        public void RemoveLines(int index, int size)
+        {
+            for (int i = 0; i < size; i++)
+            {
+                var logicLine = _lines[index];
+                logicLine.RemoveTextLines();
+                TextLineInfoManager.Remove(logicLine);
+            }       
+
+            DoRemoveLines(index, size);
+        }
+
 
         #endregion
 
@@ -139,16 +257,10 @@ namespace IndigoWord.Core
 
         private TextPosition DoGetPreviousTextPosition(TextPosition position)
         {
-            if (!VerifyTextPosition(position))
-            {
-                var firstLine = Lines.First();
-                return new TextPosition(firstLine.Line, 0);
-            }
-
             var line = position.Line;
             var previous = new TextPosition(line, position.Column - 1);
 
-            var logicLine = GetLogicLine(line);
+            var logicLine = FindLogicLine(line);
             if (logicLine.Exist(previous))
             {
                 return previous;
@@ -156,10 +268,10 @@ namespace IndigoWord.Core
             else
             {
                 var newLine = line - 1;
-                if (ExistLine(newLine))
+                if (Contains(newLine))
                 {
                     //jump to previous line
-                    var previousLogicLine = GetLogicLine(newLine);
+                    var previousLogicLine = FindLogicLine(newLine);
                     return new TextPosition(newLine, previousLogicLine.GetLength() - 1);
                 }
                 else
@@ -172,16 +284,10 @@ namespace IndigoWord.Core
 
         private TextPosition DoGetNextTextPosition(TextPosition position)
         {
-            if (!VerifyTextPosition(position))
-            {
-                var lastLine = Lines.Last();
-                return new TextPosition(lastLine.Line, lastLine.GetLength() - 1);
-            }
-
             var line = position.Line;
             var next = new TextPosition(line, position.Column + 1);
 
-            var logicLine = GetLogicLine(line);
+            var logicLine = FindLogicLine(line);
             if (logicLine.Exist(next))
             {
                 return next;
@@ -189,7 +295,7 @@ namespace IndigoWord.Core
             else
             {
                 var newLine = line + 1;
-                if (ExistLine(newLine))
+                if (Contains(newLine))
                 {
                     //jump to next line
                     return new TextPosition(newLine, 0);
@@ -204,7 +310,7 @@ namespace IndigoWord.Core
 
         private TextPosition DoGetVerticalMoveTextPosition(TextPosition position, Rect caretRect, PositionMoveType type)
         {
-            var currentLogicLine = GetLogicLine(position.Line);
+            var currentLogicLine = FindLogicLine(position.Line);
 
             //VerticalMove can not move to the position which isAtEndOfLine is true
             var currentTextLine = currentLogicLine.FindTextLine(position.Column, false);    
@@ -235,13 +341,13 @@ namespace IndigoWord.Core
                     nextLine = position.Line - 1;
                 }
 
-                if (!ExistLine(nextLine))
+                if (!Contains(nextLine))
                 {
                     //already first or last text line
                     return position;
                 }
 
-                var downLogicLine = GetLogicLine(nextLine);
+                var downLogicLine = FindLogicLine(nextLine);
 
                 if (type == PositionMoveType.Down)
                 {
@@ -258,12 +364,198 @@ namespace IndigoWord.Core
             return new TextPosition(nextLine, col);
         }
 
+        public void DoRemoveLines(int index, int size)
+        {
+            _lines.RemoveAndShift(index, size);
+
+            for (int i = index; i < _lines.Count; i++)
+            {
+                var logicLine = _lines[i];
+                logicLine.Line = i;
+            }
+        }
+
         #endregion
 
         #region Private Properties and Fields
 
         private readonly Dictionary<int, LogicLine> _lines = new Dictionary<int, LogicLine>();
 
-        #endregion        
+        #endregion
     }
+
+    #region Tests
+
+    [TestFixture]
+    class TextDocumentTest
+    {
+        /*
+         * Document Lines is below:( notice \r\n )
+            "This is not possible with Dictionary<TKey, TValue> \r\n",
+            "as it presents it's values in an unordered fashion \r\n",
+            "when enumerated. There is SortedDictionary<TKey, TValue>\r\n",
+            "which provides ordering but it does so by using an\r\n",
+            "IComparer<TKey> against the key value directly.\r\n"
+         */
+
+        private TextDocument Document { get; set; }
+        private readonly string[] _textData =
+        {
+            "This is not possible with Dictionary<TKey, TValue> ",
+            "as it presents it's values in an unordered fashion ",
+            "when enumerated. There is SortedDictionary<TKey, TValue>",
+            "which provides ordering but it does so by using an",
+            "IComparer<TKey> against the key value directly."
+        };
+
+        [SetUp]
+        public void Init()
+        {
+            Document = TextDocument.Open(_textData);
+        }
+
+        private void TestMemberLine()
+        {
+            int n = 0;
+            foreach (var logicLine in Document.Lines)
+            {
+                Assert.AreEqual(n, logicLine.Line);
+                n++;
+            }
+        }
+
+        [Test]
+        public void RemoveLines_1()
+        {
+            Document.DoRemoveLines(0, 1);
+
+            string[] expectedResults =
+            {
+                "as it presents it's values in an unordered fashion \r\n",
+                "when enumerated. There is SortedDictionary<TKey, TValue>\r\n",
+                "which provides ordering but it does so by using an\r\n",
+                "IComparer<TKey> against the key value directly.\r\n"
+            };
+
+            Assert.AreEqual(4, Document.Lines.Count);
+            Assert.AreEqual(expectedResults[0], Document.Lines[0].Text);
+            Assert.AreEqual(expectedResults[1], Document.Lines[1].Text);
+            Assert.AreEqual(expectedResults[2], Document.Lines[2].Text);
+            Assert.AreEqual(expectedResults[3], Document.Lines[3].Text);
+
+            TestMemberLine();
+        }
+
+        [Test]
+        public void RemoveLines_2()
+        {
+            Document.DoRemoveLines(1, 1);
+
+            string[] expectedResults =
+            {
+                "This is not possible with Dictionary<TKey, TValue> \r\n",
+                "when enumerated. There is SortedDictionary<TKey, TValue>\r\n",
+                "which provides ordering but it does so by using an\r\n",
+                "IComparer<TKey> against the key value directly.\r\n"
+            };
+
+            Assert.AreEqual(4, Document.Lines.Count);
+            Assert.AreEqual(expectedResults[0], Document.Lines[0].Text);
+            Assert.AreEqual(expectedResults[1], Document.Lines[1].Text);
+            Assert.AreEqual(expectedResults[2], Document.Lines[2].Text);
+            Assert.AreEqual(expectedResults[3], Document.Lines[3].Text);
+
+            TestMemberLine();
+        }
+
+        [Test]
+        public void RemoveLines_3()
+        {
+            Document.DoRemoveLines(2, 1);
+
+            string[] expectedResults =
+            {
+                "This is not possible with Dictionary<TKey, TValue> \r\n",
+                "as it presents it's values in an unordered fashion \r\n",
+                "which provides ordering but it does so by using an\r\n",
+                "IComparer<TKey> against the key value directly.\r\n"
+            };
+
+            Assert.AreEqual(4, Document.Lines.Count);
+            Assert.AreEqual(expectedResults[0], Document.Lines[0].Text);
+            Assert.AreEqual(expectedResults[1], Document.Lines[1].Text);
+            Assert.AreEqual(expectedResults[2], Document.Lines[2].Text);
+            Assert.AreEqual(expectedResults[3], Document.Lines[3].Text);
+
+            TestMemberLine();
+        }
+
+        [Test]
+        public void RemoveLines_4()
+        {
+            Document.DoRemoveLines(4, 1);
+
+            string[] expectedResults =
+            {
+                "This is not possible with Dictionary<TKey, TValue> \r\n",
+                "as it presents it's values in an unordered fashion \r\n",
+                "when enumerated. There is SortedDictionary<TKey, TValue>\r\n",
+                "which provides ordering but it does so by using an\r\n",
+            };
+
+            Assert.AreEqual(4, Document.Lines.Count);
+            Assert.AreEqual(expectedResults[0], Document.Lines[0].Text);
+            Assert.AreEqual(expectedResults[1], Document.Lines[1].Text);
+            Assert.AreEqual(expectedResults[2], Document.Lines[2].Text);
+            Assert.AreEqual(expectedResults[3], Document.Lines[3].Text);
+
+            TestMemberLine();
+        }
+
+        [Test]
+        public void RemoveLines_5()
+        {
+            Document.DoRemoveLines(0, 3);
+
+            string[] expectedResults =
+            {
+                "which provides ordering but it does so by using an\r\n",
+                "IComparer<TKey> against the key value directly.\r\n"
+            };
+
+            Assert.AreEqual(2, Document.Lines.Count);
+            Assert.AreEqual(expectedResults[0], Document.Lines[0].Text);
+            Assert.AreEqual(expectedResults[1], Document.Lines[1].Text);
+
+            TestMemberLine();
+        }
+
+        [Test]
+        public void RemoveLines_6()
+        {
+            Document.DoRemoveLines(2, 3);
+
+            string[] expectedResults =
+            {
+                "This is not possible with Dictionary<TKey, TValue> \r\n",
+                "as it presents it's values in an unordered fashion \r\n",
+            };
+
+            Assert.AreEqual(2, Document.Lines.Count);
+            Assert.AreEqual(expectedResults[0], Document.Lines[0].Text);
+            Assert.AreEqual(expectedResults[1], Document.Lines[1].Text);
+
+            TestMemberLine();
+        }
+
+        [Test]
+        public void RemoveLines_7()
+        {
+            Document.DoRemoveLines(0, 5);
+
+            Assert.AreEqual(0, Document.Lines.Count);
+        }
+    }
+
+    #endregion
 }
