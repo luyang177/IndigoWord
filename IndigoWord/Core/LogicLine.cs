@@ -55,17 +55,25 @@ namespace IndigoWord.Core
             return position.Column >= 0 && position.Column < length;
         }
 
+        /*
+         * return the Text actual size(exclude \r\n) and a more last position
+         * for example:
+         *              abc\r\n => 4
+         *              4\r\n => 2
+         *              \r\n => 1
+         */
         public int GetLength()
-        {            
-            var length = TextLines.Sum(tl => tl.Length);
+        {
+            CheckTextEnd(Text);
 
-            if (Text.EndsWith("\r\n"))
-            {
-                length--;
-            }
+            var length = Text.Length;
 
+            //since LogicLine end with \r\n
+            length--;
+            
             return length;
         }
+
 
         public double GetDistanceFromColumn(int column, bool isAtEndOfLine)
         {           
@@ -131,8 +139,8 @@ namespace IndigoWord.Core
             if (column < 0)
                 throw new ArgumentNullException("column < 0");
 
-            if (column > GetLength())
-                throw new ArgumentException("column > GetLength()");
+            if (column >= GetLength())
+                throw new ArgumentException("column >= GetLength()");
 
             int line = column;
             TextLine lastTextLine = null;
@@ -213,13 +221,26 @@ namespace IndigoWord.Core
             }
 
             return list;
-        }        
+        }
+
+        public void ClearNewLineChars()
+        {
+            CheckTextEnd(Text);
+            Text = Text.Replace(Environment.NewLine, "");
+        }
+
 
         #endregion
 
         #region Private Methods
 
-
+        private void CheckTextEnd(string text)
+        {
+            if (!text.EndsWith("\r\n"))
+            {
+                throw new Exception("LogicLine must end with \r\n");
+            }
+        }
 
         #endregion
 

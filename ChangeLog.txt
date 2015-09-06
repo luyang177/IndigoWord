@@ -2,7 +2,6 @@
 WPF TextRun
 
 [Issue]
--- TODO Add assert or unit test for abstract methods
 -- where can I put Caret object?
 -- In wrap, type space in the beginning of a TextLine only add space to the previous TextLine. 
    AvalonEdit and WPS have the same issue but notepad++ hasn't.
@@ -16,23 +15,27 @@ Lua Editor
 C# Editor
 
 [TODO]
-Type all keys include delete, home, end etc.
+
 Make a good looking tool bar.
 Select characters by draging mouse.
 Save file.
 Copy and Paste
 Add button to start a new file.
-Support scroll.
+Support scroll: mouse wheel, PageUp and PageDown.
 Vitual scroll.
 Current line selection backgroud, consider NoWrap/Wrap.
 Show line number in the left.
+Fold lines.
 
 -----------------------------------------------------------
 -----------------------------------------------------------
 [ChangeLog]
 
+2015-09-06
+Type Key Delete, Home, End.
+
 2015-09-02
-Type words by keyborad include Key enter, backspace, space, tab.
+Type words by keyborad include Key Enter, Backspace, Space, Tab.
 
 2015-08-26
 Support IME.

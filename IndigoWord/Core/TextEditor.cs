@@ -11,6 +11,7 @@ using IndigoWord.Edit;
 using IndigoWord.LowFontApi;
 using IndigoWord.Mvvm;
 using IndigoWord.Render;
+using IndigoWord.Utility;
 using IndigoWord.Utility.Bahaviors;
 using Microsoft.Win32;
 
@@ -152,25 +153,26 @@ namespace IndigoWord.Core
 
         public void OnKeyDown(Key key)
         {
-            if (key == Key.Left)
+            if (key == Key.Left || key == Key.Right || key == Key.Down || key == Key.Up)
             {
-                var pos = Document.GetPreviousTextPosition(Caret.Position);
-                CaretPosition = pos;
+                CaretPosition = CaretTraveller.DirectionKey(Document, Caret, key);
             }
-            else if (key == Key.Right)
+            else if (key == Key.Home)
             {
-                var pos = Document.GetNextTextPosition(Caret.Position);
-                CaretPosition = pos;
+                CaretPosition = CaretTraveller.Home(Document, CaretPosition);
             }
-            else if (key == Key.Down)
+            else if (key == Key.End)
             {
-                var pos = Document.GetDownLineTextPosition(Caret.Position, Caret.CaretRect);
-                CaretPosition = pos;
+                CaretPosition = CaretTraveller.End(Document, CaretPosition, IsWrap);
             }
-            else if (key == Key.Up)
+            else if (key == Key.Insert)
             {
-                var pos = Document.GetUpLineTextPosition(Caret.Position, Caret.CaretRect);
-                CaretPosition = pos;
+                MessageBox.Show("Not support Key Insert");
+            }
+            else
+            {
+                //those keys doesn't trigger OnTextInput like Key.Delete
+                ProcessText(key);
             }
         }
 
@@ -182,15 +184,7 @@ namespace IndigoWord.Core
                 return;
             }
 
-            var textProcessor = TextInputProcessorFactory.Get(text);
-            var param = new TextInputProcessorParam
-            {
-                Document = Document,
-                Render = DocumentRender,
-                Position = Caret.Position,
-                Text = text
-            };
-            CaretPosition = textProcessor.Process(param);
+            ProcessText(text);
         }
 
         #endregion
@@ -232,6 +226,40 @@ namespace IndigoWord.Core
             {
                 return TextDocument.Open(latestFile);
             }
+        }
+
+
+        private void ProcessText(string text)
+        {            
+            var textProcessor = TextInputProcessorFactory.Get(text);
+            if (textProcessor == null)
+            {
+                throw new NullReferenceException("textProcessor");
+            }
+            var param = new TextInputProcessorParam
+            {
+                Document = Document,
+                Render = DocumentRender,
+                Position = Caret.Position,
+                Text = text
+            };
+            CaretPosition = textProcessor.Process(param);
+        }
+
+        private void ProcessText(Key key)
+        {            
+            var textProcessor = TextInputProcessorFactory.Get(key);
+            if (textProcessor == null)
+            {
+                return;
+            }
+            var param = new TextInputProcessorParam
+            {
+                Document = Document,
+                Render = DocumentRender,
+                Position = Caret.Position
+            };
+            CaretPosition = textProcessor.Process(param);
         }
 
         #endregion

@@ -122,6 +122,19 @@ namespace IndigoWord.Core
             get { return _lines.Select(li => li.Value).ToList(); }
         }
 
+        public TextPosition FirstPosition
+        {
+            get
+            {
+                return new TextPosition(0, 0);
+            }
+        }
+
+        public TextPosition LastPosition
+        {
+            get { return new TextPosition(_lines.Last().Key, _lines.Last().Value.GetLength() - 1); }
+        }
+
         #endregion
 
         #region Public Methods
@@ -252,6 +265,11 @@ namespace IndigoWord.Core
 
         private void AddLogicLine(LogicLine line)
         {
+            if (!line.Text.EndsWith("\r\n"))
+            {
+                throw new Exception("LogicLine must end with \r\n");
+            }
+
             _lines.Add(line.Line, line);
         }
 

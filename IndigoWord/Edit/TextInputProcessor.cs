@@ -32,7 +32,7 @@ namespace IndigoWord.Edit
         {
             CheckParam(param);
 
-            AddText(param.Document, param.Position, param.Text);
+            UpdateDocument(param.Document, param.Position, param.Text);
             Render(param.Render);
             var caretPos = CalcCaretPosition(param.Document, param.Position);
 
@@ -49,7 +49,7 @@ namespace IndigoWord.Edit
 
         #region Abstract Methods
 
-        protected abstract void AddText(TextDocument document, TextPosition position, string text);
+        protected abstract void UpdateDocument(TextDocument document, TextPosition position, string text);
 
         protected abstract void Render(DocumentRender render);
 

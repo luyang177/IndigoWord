@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Input;
 
 namespace IndigoWord.Edit
 {
@@ -10,11 +11,14 @@ namespace IndigoWord.Edit
 
         private Lazy<BackspaceProcessor> BackspaceProcessor { get; set; }
 
+        private Lazy<DeleteProcessor> DeleteProcessor { get; set; } 
+
         public TextInputProcessorFactory()
         {
             GeneralProcessor = new Lazy<GeneralProcessor>( () => new GeneralProcessor());
             EnterProcessor = new Lazy<EnterProcessor>( () => new EnterProcessor());
             BackspaceProcessor = new Lazy<BackspaceProcessor>( () => new BackspaceProcessor());
+            DeleteProcessor = new Lazy<DeleteProcessor>( () => new DeleteProcessor());
         }
         
         public TextInputProcessor Get(string text)
@@ -36,6 +40,24 @@ namespace IndigoWord.Edit
 
             //Reset it
             processor.Reset();
+
+            return processor;
+        }
+
+        public TextInputProcessor Get(Key key)
+        {
+            TextInputProcessor processor = null;
+
+            if (key == Key.Delete)
+            {
+                processor = DeleteProcessor.Value;
+            }
+
+            if (processor != null)
+            {
+                //Reset it
+                processor.Reset();
+            }
 
             return processor;
         }

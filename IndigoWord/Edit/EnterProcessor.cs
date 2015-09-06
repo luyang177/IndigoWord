@@ -8,13 +8,16 @@ using IndigoWord.Render;
 
 namespace IndigoWord.Edit
 {
+    /*
+     * Key Enter TextInputProcessor
+     */
     class EnterProcessor : TextInputProcessor
     {
         private LogicLine _logicLine;
 
         private IList<LogicLine> _renderLines; 
 
-        protected override void AddText(TextDocument document, TextPosition position, string text)
+        protected override void UpdateDocument(TextDocument document, TextPosition position, string text)
         {
             _logicLine = document.FindLogicLine(position.Line);
             _logicLine.Text = _logicLine.Text.Insert(position.Column, text);

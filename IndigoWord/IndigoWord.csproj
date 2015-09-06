@@ -53,6 +53,8 @@
     <Compile Include="Core\ICaretPosition.cs" />
     <Compile Include="Core\ImeSupport.cs" />
     <Compile Include="Edit\BackspaceProcessor.cs" />
+    <Compile Include="Edit\CaretTraveller.cs" />
+    <Compile Include="Edit\DeleteProcessor.cs" />
     <Compile Include="Edit\EnterProcessor.cs" />
     <Compile Include="Edit\GeneralProcessor.cs" />
     <Compile Include="Edit\TextInputProcessor.cs" />
@@ -89,6 +91,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility\CompareHelper.cs" />
     <Compile Include="Utility\DictionaryExtension.cs" />
+    <Compile Include="Utility\CompareExtension.cs" />
     <Compile Include="Utility\MathHelper.cs" />
     <Compile Include="Utility\RectExtension.cs" />
     <Compile Include="Utility\SerializerHelper.cs" />

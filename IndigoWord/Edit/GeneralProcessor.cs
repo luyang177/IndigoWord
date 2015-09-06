@@ -12,7 +12,7 @@ namespace IndigoWord.Edit
     {
         private LogicLine _logicLine;
 
-        protected override void AddText(TextDocument document, TextPosition position, string text)
+        protected override void UpdateDocument(TextDocument document, TextPosition position, string text)
         {
             _logicLine = document.FindLogicLine(position.Line);
             _logicLine.Text = _logicLine.Text.Insert(position.Column, text);

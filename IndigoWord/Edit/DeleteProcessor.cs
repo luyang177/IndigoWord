@@ -9,47 +9,42 @@ using IndigoWord.Render;
 namespace IndigoWord.Edit
 {
     /*
-     * Key Backspace TextInputProcessor
+     * Key Delete TextInputProcessor
      */
-    class BackspaceProcessor : TextInputProcessor
+    class DeleteProcessor : TextInputProcessor
     {
         private LogicLine _logicLine;
         private LogicLine _deletedLine;
-        private int _lastCol = -1;
         private bool _needRender = true;
 
         protected override void UpdateDocument(TextDocument document, TextPosition position, string text)
         {
-            if (position.Equals(document.FirstPosition))
+            if (position.Equals(document.LastPosition))
             {
-                //already at the FirstPosition of the document, do nothing
+                //already at the LastPosition of the document, do nothing
                 _needRender = false;
                 return;
             }
 
             _logicLine = document.FindLogicLine(position.Line);
-            if (position.Column == 0)
+
+            if (position.Column == _logicLine.GetLength() - 1)
             {
-                //combine this line to the previous line
+                var nextLineIndex = position.Line + 1;
+                var nextLine = document.FindLogicLine(nextLineIndex);
+                _logicLine.ClearNewLineChars();
+                _logicLine.Text += nextLine.Text;
 
-                var previousLogicLine = document.FindLogicLine(position.Line - 1);
+                document.RemoveLines(nextLineIndex, 1);
 
-                _lastCol = previousLogicLine.GetLength() - 1;
-
-                previousLogicLine.ClearNewLineChars();
-                previousLogicLine.Text += _logicLine.Text;
-
-                _deletedLine = _logicLine;
-                _logicLine = previousLogicLine;
-
-                var index = _deletedLine.Line;
-                document.RemoveLines(index, 1);
+                _deletedLine = nextLine;
             }
             else
             {
                 //just delete single character
-                _logicLine.Text = _logicLine.Text.Remove(position.Column - 1, 1);
+                _logicLine.Text = _logicLine.Text.Remove(position.Column, 1);
             }
+            
         }
 
         protected override void Render(DocumentRender render)
@@ -81,27 +76,16 @@ namespace IndigoWord.Edit
         {
             if (!_needRender)
             {
-                return document.FirstPosition;
+                return document.LastPosition;
             }
 
-            TextPosition pos;
-            if (_deletedLine != null)
-            {
-                pos = new TextPosition(_logicLine.Line, _lastCol);
-            }
-            else
-            {
-                pos = document.GetPreviousTextPosition(position);
-            }
-
-            return pos;
+            return new TextPosition(position.Line, position.Column, false);
         }
 
         protected override void ResetCore()
         {
             _logicLine = null;
             _deletedLine = null;
-            _lastCol = -1;
             _needRender = true;
         }
     }
