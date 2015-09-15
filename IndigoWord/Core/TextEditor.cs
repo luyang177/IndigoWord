@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Windows;
+using System.Windows.Documents;
 using System.Windows.Input;
 using IndigoWord.Annotations;
 using IndigoWord.Edit;
@@ -38,8 +39,7 @@ namespace IndigoWord.Core
 
             InitCaret(layerProvider, Document);
 
-            //TODO
-            DocumentRender.Caret = Caret;
+            SelectionRender = new SelectionRender(layerProvider, WrapState);
 
             //set caret initial position
             Caret.Position = new TextPosition(0,0);
@@ -64,15 +64,24 @@ namespace IndigoWord.Core
             }
         }
 
+
         public bool IsWrap
         {
             get
             {
-                return DocumentRender.IsWrap;
+                return WrapState.IsWrap;
             }
             set
             {
-                DocumentRender.IsWrap = value;
+                if (WrapState.IsWrap == value)
+                {
+                    return;
+                }
+
+                WrapState.IsWrap = value;
+
+                SelectionRender.Clear();
+                ShowSelectionText();
 
                 //trigger caret redraw
                 Caret.Position = Caret.Position;
@@ -131,10 +140,10 @@ namespace IndigoWord.Core
 
         public ICommand HitCommand
         {
-            get { return _hitCommand ?? (_hitCommand = new RelayCommand<HitVisualParam>(Hit)); }
+            get { return _hitCommand ?? (_hitCommand = new RelayCommand<VisualParam>(Hit)); }
         }
 
-        private void Hit(HitVisualParam param)
+        private void Hit(VisualParam param)
         {
             var textPosition = DocumentRender.Hit(param);
             if (textPosition == null)
@@ -142,7 +151,54 @@ namespace IndigoWord.Core
                 return;
             }
 
-            CaretPosition = textPosition;
+            var pos = textPosition.Value;
+
+            CaretPosition = pos;
+            _selectionRange = new TextRange(pos);
+        }
+
+        #endregion
+
+        #region MouseMove Command
+
+        private ICommand _mouseMoveCommand;
+
+        public ICommand MouseMoveCommand
+        {
+            get { return _mouseMoveCommand ?? (_mouseMoveCommand = new RelayCommand<VisualParam>(MouseMove)); }
+        }
+
+        private void MouseMove(VisualParam param)
+        {
+            var textPosition = DocumentRender.Hit(param);
+            if (textPosition == null)
+            {
+                return;
+            }
+
+            var pos = textPosition.Value;
+
+            CaretPosition = pos;
+            _selectionRange.Change(pos);
+
+            ShowSelectionText();
+        }
+
+        #endregion
+
+        #region Test Command
+
+        private ICommand _testCommand;
+
+        public ICommand TestCommand
+        {
+            get { return _testCommand ?? (_testCommand = new RelayCommand(Test)); }
+        }
+
+        private void Test()
+        {
+            _selectionRange = new TextRange(new TextPosition(0, 3), new TextPosition(2, 3));
+            ShowSelectionText();
         }
 
         #endregion
@@ -189,7 +245,7 @@ namespace IndigoWord.Core
 
         #endregion
 
-        #region Private Properties
+        #region Private Properties and Fields
 
         private Caret Caret { get; set; }
 
@@ -197,7 +253,24 @@ namespace IndigoWord.Core
 
         private DocumentRender DocumentRender { get; set; }
 
+        private SelectionRender SelectionRender { get; set; }
+
+        /*
+         * TextRange is a mutable struct, using property is a trap
+         * because we will call getter to get a copy(remember this is a struct), and change the copy, not the real one
+         * so use field instead.
+         */
+        private TextRange _selectionRange;
+
         private TextInputProcessorFactory TextInputProcessorFactory { get; set; }
+
+
+        private readonly WrapState _wrapState = new WrapState();
+
+        private WrapState WrapState
+        {
+            get { return _wrapState; }
+        }
 
         #endregion
 
@@ -205,8 +278,8 @@ namespace IndigoWord.Core
 
         private void InitRender(ILayerProvider layerProvider)
         {
-            var layer = layerProvider.Get(LayerNames.Host);
-            DocumentRender = new DocumentRender(layer);
+            var layer = layerProvider.Get(LayerNames.TextLayer);
+            DocumentRender = new DocumentRender(layer, WrapState);
         }
 
         private void InitCaret(ILayerProvider layerProvider, TextDocument document)
@@ -260,6 +333,14 @@ namespace IndigoWord.Core
                 Position = Caret.Position
             };
             CaretPosition = textProcessor.Process(param);
+        }
+
+        private void ShowSelectionText()
+        {
+            if (_selectionRange.IsRange)
+            {
+                SelectionRender.Show(Document, _selectionRange);
+            }
         }
 
         #endregion

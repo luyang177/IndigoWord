@@ -2,9 +2,12 @@
 WPF TextRun
 
 [Issue]
--- where can I put Caret object?
+-- If you are just on the caret, drag mouse, you can not select any text.
+-- single click to cancel text selection
+-- Direction Up/Down can remember last two line position, like other text editor.
 -- In wrap, type space in the beginning of a TextLine only add space to the previous TextLine. 
    AvalonEdit and WPS have the same issue but notepad++ hasn't.
+-- //bug: why we must + 1.0, otherwise, a slight gap between lines.   
    
 [Milestone]
 show hex
@@ -15,21 +18,24 @@ Lua Editor
 C# Editor
 
 [TODO]
-
+Implement the ralative feature about select characters like type word, type Delete, Backspace; cancel selection by click mouse.
 Make a good looking tool bar.
-Select characters by draging mouse.
 Save file.
-Copy and Paste
+Copy and Paste(ctrl + c, ctrl + v, and toolbar), use command.
 Add button to start a new file.
 Support scroll: mouse wheel, PageUp and PageDown.
 Vitual scroll.
 Current line selection backgroud, consider NoWrap/Wrap.
 Show line number in the left.
 Fold lines.
+Layer may need dynamic insert and remove by code
 
 -----------------------------------------------------------
 -----------------------------------------------------------
 [ChangeLog]
+
+2015-09-15
+Select characters by draging mouse, but just render the selection area.
 
 2015-09-06
 Type Key Delete, Home, End.

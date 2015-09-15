@@ -72,7 +72,7 @@ namespace IndigoWord.Core
 
         public bool IsCaret(Visual visual)
         {
-            return Visual == visual;
+            return ReferenceEquals(Visual, visual);
         }
 
         #endregion
@@ -131,7 +131,9 @@ namespace IndigoWord.Core
             using (var dc = Visual.RenderOpen())
             {
                 if (!Blink)
+                {
                     return;
+                }
 
                 var pen = new Pen();
                 dc.DrawRectangle(Brushes.Indigo, pen, CaretRect);

@@ -5,26 +5,38 @@ namespace IndigoWord.Core
     /*
      * Represent position in document
      * Line and Column are refer to LogiciLine.
+     * Notice: this struct is immutable.
      */
-    class TextPosition : IEquatable<TextPosition>
+    struct TextPosition : IEquatable<TextPosition>, IComparable<TextPosition>
     {
         public TextPosition(int line, int column)
         {
-            Line = line;
-            Column = column;
-            IsAtEndOfLine = false;
+            _line = line;
+            _column = column;
+            _isAtEndOfLine = false;
         }
 
         public TextPosition(int line, int column, bool isAtEndOfLine)
         {
-            Line = line;
-            Column = column;
-            IsAtEndOfLine = isAtEndOfLine;
+            _line = line;
+            _column = column;
+            _isAtEndOfLine = isAtEndOfLine;
         }
 
-        public int Line { get; set; }
+        private readonly int _line;
 
-        public int Column { get; set; }
+        public int Line
+        {
+            get { return _line; }
+        }
+
+        private readonly int _column;
+        
+
+        public int Column
+        {
+            get { return _column; }
+        }
 
         /*
          * When word-wrap is enabled and a line is wrapped at a position where there is no space character;
@@ -36,7 +48,13 @@ namespace IndigoWord.Core
          * 
          * If this position is not at such a wrapping position, the value of this property has no effect.
          */
-        public bool IsAtEndOfLine { get; set; }
+
+        private readonly bool _isAtEndOfLine;
+
+        public bool IsAtEndOfLine
+        {
+            get { return _isAtEndOfLine; }
+        }
 
         public override string ToString()
         {
@@ -47,7 +65,7 @@ namespace IndigoWord.Core
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as TextPosition);
+            return Equals((TextPosition)obj);
         }
 
         public override int GetHashCode()
@@ -57,18 +75,6 @@ namespace IndigoWord.Core
 
         public bool Equals(TextPosition other)
         {
-            // If parameter is null, return false. 
-            if (ReferenceEquals(other, null))
-            {
-                return false;
-            }
-
-            // Optimization for a common success case. 
-            if (ReferenceEquals(this, other))
-            {
-                return true;
-            }
-
             if (GetType() != other.GetType())
                 return false;
 
@@ -79,15 +85,55 @@ namespace IndigoWord.Core
 
         }
 
-        /*
-         * Let operator == and != continue compare reference
-         */
-        //public static bool operator ==(Study lhs, Study rhs)
-        //public static bool operator !=(Study lhs, Study rhs)
-
         private bool EqualFields(TextPosition other)
         {
             return Line == other.Line && Column == other.Column;
+        }
+
+        public static bool operator ==(TextPosition objA, TextPosition objB)
+        {
+            return objA.Equals(objB);
+        }
+
+        public static bool operator !=(TextPosition objA, TextPosition objB)
+        {
+            return !objA.Equals(objB);
+        }
+
+        #endregion
+
+        #region Implementation of IComparable<T>
+
+        public int CompareTo(TextPosition other)
+        {
+            if (Line == other.Line)
+            {
+                return Column.CompareTo(other.Column);
+            }
+            else
+            {
+                return Line.CompareTo(other.Line);
+            }
+        }
+
+        public static bool operator >(TextPosition objA, TextPosition objB)
+        {
+            return objA.CompareTo(objB) > 0;
+        }
+
+        public static bool operator <(TextPosition objA, TextPosition objB)
+        {
+            return objA.CompareTo(objB) < 0;
+        }
+
+        public static bool operator >=(TextPosition objA, TextPosition objB)
+        {
+            return objA.CompareTo(objB) >= 0;
+        }
+
+        public static bool operator <=(TextPosition objA, TextPosition objB)
+        {
+            return objA.CompareTo(objB) <= 0;
         }
 
         #endregion

@@ -1,10 +1,15 @@
-﻿using System.Windows;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 
 namespace IndigoWord.Utility.Bahaviors
 {
-    sealed class HitDrawingVisualBehavior : BehaviorBase<UIElement>
+    class MouseMoveBehavior : BehaviorBase<UIElement>
     {
         protected override void OnAttached()
         {
@@ -13,7 +18,7 @@ namespace IndigoWord.Utility.Bahaviors
             if (AssociatedObject == null)
                 return;
 
-            AssociatedObject.PreviewMouseLeftButtonDown += OnMouseLeftButtonDown;
+            AssociatedObject.MouseMove += OnMouseMove;
         }
 
         protected override void OnDetaching()
@@ -23,18 +28,15 @@ namespace IndigoWord.Utility.Bahaviors
             if (AssociatedObject == null)
                 return;
 
-            AssociatedObject.PreviewMouseLeftButtonDown -= OnMouseLeftButtonDown;
+            AssociatedObject.MouseMove -= OnMouseMove;
         }
 
-        private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        private void OnMouseMove(object sender, MouseEventArgs e)
         {
-            DoHitTest(sender, e);
-        }
-
-        private void DoHitTest(object sender, MouseButtonEventArgs e)
-        {
-            if(Command == null)
+            if (e.LeftButton != MouseButtonState.Pressed)
+            {
                 return;
+            }
 
             var el = sender as UIElement;
             if (el == null)

@@ -19,15 +19,6 @@ namespace IndigoWord.Render
 
         #region Public Methods
 
-        public VisualAdorner InitAdorner()
-        {
-            var adornerLayer = AdornerLayer.GetAdornerLayer(this);
-            Adorner = new VisualAdorner(this);
-            adornerLayer.Add(Adorner);
-
-            return Adorner;
-        }
-
         #endregion
 
         #region Implementation of ILayer
@@ -57,7 +48,6 @@ namespace IndigoWord.Render
 
         #region Private Properties
 
-        private VisualAdorner Adorner { get; set; }
 
         #endregion
 

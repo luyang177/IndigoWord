@@ -38,10 +38,10 @@ namespace IndigoWord
 
         private void Init()
         {
-            var adorner = Host.InitAdorner();
-
             LayerProvider = new SimpleLayerProvider();
-            LayerProvider.Register(LayerNames.Host, Host);
+            LayerProvider.Register(LayerNames.BackgroundLayer, BackgroundLayer);
+            LayerProvider.Register(LayerNames.TextLayer, TextLayer);
+            var adorner = InitAdorner();
             LayerProvider.Register(LayerNames.Adorner, adorner);
 
             TextEditor = new TextEditor(LayerProvider);
@@ -53,6 +53,15 @@ namespace IndigoWord
             _ime = new ImeSupport(this, MenuView.ActualHeight, TextEditor.CaretPositionProvider, TextEditor.FontRendering);
             
             DataContext = TextEditor;
+        }
+
+        private VisualAdorner InitAdorner()
+        {
+            var adornerLayer = AdornerLayer.GetAdornerLayer(LayerContainer);
+            var adorner = new VisualAdorner(LayerContainer);
+            adornerLayer.Add(adorner);
+
+            return adorner;
         }
 
         /*

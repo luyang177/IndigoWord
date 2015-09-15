@@ -42,19 +42,29 @@
                           Height="50"
                           Margin="10"
                           IsChecked="{Binding IsWrap}"
-                          Focusable="False"/>            
+                          Focusable="False"/>
+            <Button Content="Test"
+                    Margin="10"
+                    Command="{Binding TestCommand}"
+                    Focusable="False"/>
         </StackPanel>
 
         <!--Transparent make it trigger button down event-->
         <Grid Grid.Row="1"
               Focusable="False"
               Background="Transparent"   
-              Cursor="IBeam"> 
+              Cursor="IBeam">
             <i:Interaction.Behaviors>
+                <!--Not put behaviors direct in TextLayer, because we want hit blank area to do some vague hits and point the end of line-->
                 <bahaviors:HitDrawingVisualBehavior Command="{Binding HitCommand}"/>
+                <bahaviors:MouseMoveBehavior Command="{Binding MouseMoveCommand}"/>
             </i:Interaction.Behaviors>
+            <!-- TODO Layer may need dynamic insert and remove by code -->
             <AdornerDecorator ClipToBounds="True">
-                <render:VisualHost x:Name="Host" />
+                <Canvas x:Name="LayerContainer">
+                    <render:VisualHost x:Name="BackgroundLayer" />
+                    <render:VisualHost x:Name="TextLayer" />
+                </Canvas>
             </AdornerDecorator>
         </Grid>
         <StatusBar Grid.Row="2"

@@ -3,5 +3,8 @@
 -- Every logic line draw on single drawing visual.
 -- In wrap: when input one char that will wrap, we are not redraw the whole next lines, just transform the next lines.
 -- Core doesn't relay on Render, just Render know Core
+-- Set backgroundBrush to TextRunProperties, we find slight gap between two lines.
+   So we do not use it, and workground it.
+   AvalonEdit also has this problem, but it use SelectionLayer to workaround.
 -- Draw text on VisualHost
 -- Draw caret on VisualAdorner

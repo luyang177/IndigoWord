@@ -27,7 +27,7 @@ namespace IndigoWord.LowFontApi
 
       public FontRendering()
       {
-         _fontSize = 24.0f;
+         _fontSize = 24;
          _alignment = TextAlignment.Left;
          _textDecorations = new TextDecorationCollection();
          _textColor = Brushes.Black;

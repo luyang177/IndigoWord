@@ -53,6 +53,7 @@ namespace IndigoWord.Render
 
                 textLine.Draw(dc, new Point(0, pos), InvertAxes.None);
                 textStorePosition += textLine.Length;
+
                 pos += textLine.Height;
 
                 textLines.Add(textLine);

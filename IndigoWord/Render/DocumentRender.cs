@@ -19,31 +19,23 @@ namespace IndigoWord.Render
 
         #region Constructor
 
-        public DocumentRender(ILayer layer)
+        public DocumentRender(ILayer layer, WrapState wrapState)
         {
             if(layer == null)
                 throw new ArgumentNullException("layer");
 
             Layer = layer;
+
+            if (wrapState == null)
+                throw new ArgumentNullException("wrapState");
+
+            _wrapState = wrapState;
+            _wrapState.Changed += OnWrapChanged;
         }
 
         #endregion
 
         #region Public Properties
-
-        private bool _isWrap;
-        public bool IsWrap
-        {
-            get { return _isWrap; }
-            set
-            {
-                _isWrap = value;
-
-                Document.Reset();
-                Reset();
-                Show(Document);
-            }
-        }
 
         private FontRendering _fontRendering = new FontRendering();
         public FontRendering FontRendering
@@ -123,22 +115,27 @@ namespace IndigoWord.Render
             DrawingElements.Remove(drawingElement);
         }
 
-        //TODO
-        public Caret Caret { get; set; }
-
-        public TextPosition Hit(HitVisualParam param)
+        public TextPosition? Hit(VisualParam param)
         {
             Debug.Assert(DrawingElements.All(el => el.Visual != null));
 
+            TextPosition? pos = null;
             if (param.Visual != null)
             {
-                return FindHittedTextPosition(param);
+                pos = FindHittedTextPosition(param);
             }
-            else
+
+            if (param.Visual == null ||
+                (param.Visual != null && pos == null))
             {
-                //since param.Visual is null, we just find the closest text postition
-                return FindClosestTextPosition(param.Position);
+                /*
+                 * (1) param.Visual is null, we just find the closest text postition
+                 * (2) param.Visual is not null, but param.Visual is not on the TextLayer, so we also need to find the closest text postition
+                 */
+                pos = FindClosestTextPosition(param.Point);
             }
+
+            return pos;
         }
 
         public void PositionBelow(LogicLine logicLine)
@@ -232,25 +229,26 @@ namespace IndigoWord.Render
 
 
 
-        private TextPosition FindHittedTextPosition(HitVisualParam param)
+        private TextPosition? FindHittedTextPosition(VisualParam param)
         {
             Debug.Assert(param.Visual != null);
 
-            if (Caret.IsCaret(param.Visual))
+            //find hitted visual belongs to which LogicLine
+            var hitDrawingElement = DrawingElements.SingleOrDefault(el => ReferenceEquals(el.Visual, param.Visual));
+            if (hitDrawingElement == null)
             {
-                return Caret.Position;
+                //the given visual is not belong to TextLayer
+                return null;
             }
 
-            //find hitted visual belongs to which LogicLine
-            var hitDrawingElement = DrawingElements.Single(el => ReferenceEquals(el.Visual, param.Visual));
             var logicLine = hitDrawingElement.LogicLine;
             Debug.Assert(logicLine != null);
 
             //find hitted visual belongs to which TextLine
-            var textLine = logicLine.FindTextLine(param.Position);
+            var textLine = logicLine.FindTextLine(param.Point);
             Debug.Assert(textLine != null);
 
-            var col = textLine.FindClosestColumn(param.Position, true);
+            var col = textLine.FindClosestColumn(param.Point, true);
             var info = TextLineInfoManager.Get(textLine);
             var isAtEndOfLine = col == info.EndCharPos + 1;
             return new TextPosition(logicLine.Line, col, isAtEndOfLine);            
@@ -282,6 +280,13 @@ namespace IndigoWord.Render
             }
         }
 
+        private void OnWrapChanged()
+        {
+            Document.Reset();
+            Reset();
+            Show(Document);
+        }
+
         #endregion
 
         #region Private Properties and Fields
@@ -294,6 +299,18 @@ namespace IndigoWord.Render
         private List<DrawingElement> DrawingElements
         {
             get { return _drawingElements; }
+        }
+
+        private readonly WrapState _wrapState;
+
+        private WrapState WrapState
+        {
+            get { return _wrapState; }
+        }
+
+        private bool IsWrap
+        {
+            get { return WrapState.IsWrap; }
         }
 
         #endregion

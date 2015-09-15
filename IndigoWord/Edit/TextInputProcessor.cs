@@ -18,9 +18,6 @@ namespace IndigoWord.Edit
         public string Text { get; set; }
     }
 
-    /*
-     * TODO Add assert or unit test for abstract methods
-     */
     abstract class TextInputProcessor
     {
         #region Public Methods
@@ -76,11 +73,6 @@ namespace IndigoWord.Edit
             if (param.Render == null)
             {
                 throw new ArgumentNullException("param.Render");
-            }
-
-            if (param.Position == null)
-            {
-                throw new ArgumentNullException("param.Position");
             }
         }
 

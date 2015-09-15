@@ -153,6 +153,7 @@ namespace IndigoWord.LowFontApi
          _emHintingSize = newRender.FontSize;
          _textDecorations = newRender.TextDecorations;
          _foregroundBrush = newRender.TextColor;
+         //_backgroundBrush = Brushes.LightCoral;
          _backgroundBrush = null;
          _baselineAlignment = BaselineAlignment.Baseline;
          _culture = CultureInfo.CurrentUICulture;

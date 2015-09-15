@@ -328,6 +328,11 @@ namespace IndigoWord.Core
 
         private TextPosition DoGetVerticalMoveTextPosition(TextPosition position, Rect caretRect, PositionMoveType type)
         {
+            if (position.IsAtEndOfLine)
+            {
+                position = new TextPosition(position.Line, position.Column - 1, false);
+            }
+
             var currentLogicLine = FindLogicLine(position.Line);
 
             //VerticalMove can not move to the position which isAtEndOfLine is true
