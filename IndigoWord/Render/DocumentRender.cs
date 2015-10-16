@@ -251,7 +251,7 @@ namespace IndigoWord.Render
             var col = textLine.FindClosestColumn(param.Point, true);
             var info = TextLineInfoManager.Get(textLine);
             var isAtEndOfLine = col == info.EndCharPos + 1;
-            return new TextPosition(logicLine.Line, col, isAtEndOfLine);            
+            return new TextPosition(logicLine.Line, col, isAtEndOfLine);
         }
 
         private TextPosition FindClosestTextPosition(Point point)

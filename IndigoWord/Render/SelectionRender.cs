@@ -205,7 +205,7 @@ namespace IndigoWord.Render
 
         private DrawingVisual Visual { get; set; }
 
-        private readonly Brush _brush = Brushes.LightSkyBlue;
+        private readonly Brush _brush = Brushes.PowderBlue;
 
         private Brush Brush
         {

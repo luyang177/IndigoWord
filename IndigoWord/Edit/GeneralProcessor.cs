@@ -12,23 +12,23 @@ namespace IndigoWord.Edit
     {
         private LogicLine _logicLine;
 
-        protected override void UpdateDocument(TextDocument document, TextPosition position, string text)
+        public override void UpdateDocument(TextDocument document, TextPosition position, TextRange range, string text)
         {
             _logicLine = document.FindLogicLine(position.Line);
             _logicLine.Text = _logicLine.Text.Insert(position.Column, text);
         }
 
-        protected override void Render(DocumentRender render)
+        public override void Render(DocumentRender render)
         {
             render.Show(_logicLine, false);
         }
 
-        protected override TextPosition CalcCaretPosition(TextDocument document, Core.TextPosition position)
+        public override TextPosition CalcCaretPosition(TextDocument document, TextPosition position, TextRange range)
         {
             return document.GetNextTextPosition(position);
         }
 
-        protected override void ResetCore()
+        public override void ResetCore()
         {
             _logicLine = null;
         }

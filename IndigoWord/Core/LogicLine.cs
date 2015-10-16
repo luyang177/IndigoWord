@@ -56,7 +56,7 @@ namespace IndigoWord.Core
         }
 
         /*
-         * return the Text actual size(exclude \r\n) and a more last position
+         * return the Text actual size(exclude \r\n) and one more last position
          * for example:
          *              abc\r\n => 4
          *              4\r\n => 2
@@ -180,6 +180,12 @@ namespace IndigoWord.Core
                 var top = Top + info.Top;
                 return (point.Y >= top) && (point.Y <= top + tl.Height);
             });            
+        }
+
+        public bool IsHeadOfTextLine(TextPosition position)
+        {
+            return TextLines.Select(TextLineInfoManager.Get)
+                            .Any(info => info.StartCharPos == position.Column);
         }
 
         /*

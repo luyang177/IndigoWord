@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Input;
+using NUnit.Framework;
 
 namespace IndigoWord.Edit
 {
@@ -11,7 +12,11 @@ namespace IndigoWord.Edit
 
         private Lazy<BackspaceProcessor> BackspaceProcessor { get; set; }
 
-        private Lazy<DeleteProcessor> DeleteProcessor { get; set; } 
+        private Lazy<DeleteProcessor> DeleteProcessor { get; set; }
+
+        private Lazy<RemoveRangeProcessor> RemoveRangeProcessor { get; set; }
+
+        private Lazy<GeneralWithRangeProcessor> GeneralWithRangeProcessor { get; set; } 
 
         public TextInputProcessorFactory()
         {
@@ -19,9 +24,11 @@ namespace IndigoWord.Edit
             EnterProcessor = new Lazy<EnterProcessor>( () => new EnterProcessor());
             BackspaceProcessor = new Lazy<BackspaceProcessor>( () => new BackspaceProcessor());
             DeleteProcessor = new Lazy<DeleteProcessor>( () => new DeleteProcessor());
+            RemoveRangeProcessor = new Lazy<RemoveRangeProcessor>( () => new RemoveRangeProcessor());
+            GeneralWithRangeProcessor = new Lazy<GeneralWithRangeProcessor>( () => new GeneralWithRangeProcessor());
         }
-        
-        public TextInputProcessor Get(string text)
+
+        public TextInputProcessor Get(string text, bool isRange)
         {
             TextInputProcessor processor;
 
@@ -31,11 +38,25 @@ namespace IndigoWord.Edit
             }
             else if (text == "\b")
             {
-                processor = BackspaceProcessor.Value;
+                if (isRange)
+                {
+                    processor = RemoveRangeProcessor.Value;
+                }
+                else
+                {
+                    processor = BackspaceProcessor.Value;
+                }
             }
             else
             {
-                processor = GeneralProcessor.Value;
+                if (isRange)
+                {
+                    processor = GeneralWithRangeProcessor.Value;
+                }
+                else
+                {
+                    processor = GeneralProcessor.Value;
+                }
             }
 
             //Reset it
@@ -44,13 +65,20 @@ namespace IndigoWord.Edit
             return processor;
         }
 
-        public TextInputProcessor Get(Key key)
+        public TextInputProcessor Get(Key key, bool isRange)
         {
             TextInputProcessor processor = null;
 
             if (key == Key.Delete)
             {
-                processor = DeleteProcessor.Value;
+                if (isRange)
+                {
+                    processor = RemoveRangeProcessor.Value;
+                }
+                else
+                {
+                    processor = DeleteProcessor.Value;
+                }
             }
 
             if (processor != null)

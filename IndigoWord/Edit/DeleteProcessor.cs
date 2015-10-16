@@ -17,7 +17,7 @@ namespace IndigoWord.Edit
         private LogicLine _deletedLine;
         private bool _needRender = true;
 
-        protected override void UpdateDocument(TextDocument document, TextPosition position, string text)
+        public override void UpdateDocument(TextDocument document, TextPosition position, TextRange range, string text)
         {
             if (position.Equals(document.LastPosition))
             {
@@ -47,7 +47,7 @@ namespace IndigoWord.Edit
             
         }
 
-        protected override void Render(DocumentRender render)
+        public override void Render(DocumentRender render)
         {
             if (!_needRender)
             {
@@ -72,7 +72,7 @@ namespace IndigoWord.Edit
             }
         }
 
-        protected override TextPosition CalcCaretPosition(TextDocument document, TextPosition position)
+        public override TextPosition CalcCaretPosition(TextDocument document, TextPosition position, TextRange range)
         {
             if (!_needRender)
             {
@@ -82,7 +82,7 @@ namespace IndigoWord.Edit
             return new TextPosition(position.Line, position.Column, false);
         }
 
-        protected override void ResetCore()
+        public override void ResetCore()
         {
             _logicLine = null;
             _deletedLine = null;

@@ -78,13 +78,16 @@ namespace IndigoWord.Core
                     return;
                 }
 
+                var lastIsWrap = WrapState.IsWrap;
                 WrapState.IsWrap = value;
 
                 SelectionRender.Clear();
                 ShowSelectionText();
 
+                var pos = HandleWrapCaretPosition(lastIsWrap);
+
                 //trigger caret redraw
-                Caret.Position = Caret.Position;
+                Caret.Position = pos;
             }
         }
 
@@ -155,6 +158,7 @@ namespace IndigoWord.Core
 
             CaretPosition = pos;
             _selectionRange = new TextRange(pos);
+            SelectionRender.Clear();
         }
 
         #endregion
@@ -272,6 +276,11 @@ namespace IndigoWord.Core
             get { return _wrapState; }
         }
 
+        private bool IsSelectionRange
+        {
+            get { return _selectionRange.IsRange; }
+        }
+
         #endregion
 
         #region Private Methods
@@ -303,44 +312,75 @@ namespace IndigoWord.Core
 
 
         private void ProcessText(string text)
-        {            
-            var textProcessor = TextInputProcessorFactory.Get(text);
+        {
+            var textProcessor = TextInputProcessorFactory.Get(text, IsSelectionRange);
             if (textProcessor == null)
             {
                 throw new NullReferenceException("textProcessor");
             }
+            
+            DoProcessText(textProcessor, text);
+        }
+
+        private void ProcessText(Key key)
+        {
+            var textProcessor = TextInputProcessorFactory.Get(key, IsSelectionRange);
+            if (textProcessor == null)
+            {
+                return;
+            }
+
+            DoProcessText(textProcessor, null);
+        }
+
+        private void DoProcessText(TextInputProcessor processor, string text)
+        {
             var param = new TextInputProcessorParam
             {
                 Document = Document,
                 Render = DocumentRender,
                 Position = Caret.Position,
+                TextRange = _selectionRange,
                 Text = text
             };
-            CaretPosition = textProcessor.Process(param);
-        }
+            CaretPosition = processor.Process(param);
 
-        private void ProcessText(Key key)
-        {            
-            var textProcessor = TextInputProcessorFactory.Get(key);
-            if (textProcessor == null)
-            {
-                return;
-            }
-            var param = new TextInputProcessorParam
-            {
-                Document = Document,
-                Render = DocumentRender,
-                Position = Caret.Position
-            };
-            CaretPosition = textProcessor.Process(param);
+            _selectionRange = new TextRange();
+            SelectionRender.Clear();
         }
 
         private void ShowSelectionText()
         {
-            if (_selectionRange.IsRange)
+            if (IsSelectionRange)
             {
                 SelectionRender.Show(Document, _selectionRange);
             }
+        }
+
+        /*
+         * Make caret position in the right position when at the head of TextLine.
+         */
+        private TextPosition HandleWrapCaretPosition(bool lastIsWrap)
+        {
+            TextPosition pos;
+            if (lastIsWrap)
+            {
+                pos = new TextPosition(Caret.Position.Line, Caret.Position.Column, false);
+            }
+            else
+            {
+                var logicLine = Document.FindLogicLine(Caret.Position.Line);
+                if (logicLine.IsHeadOfTextLine(Caret.Position))
+                {
+                    pos = new TextPosition(Caret.Position.Line, Caret.Position.Column, true);
+                }
+                else
+                {
+                    pos = new TextPosition(Caret.Position.Line, Caret.Position.Column, false);
+                }
+            }
+
+            return pos;
         }
 
         #endregion

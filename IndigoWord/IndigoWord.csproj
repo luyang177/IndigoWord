@@ -57,6 +57,8 @@
     <Compile Include="Edit\BackspaceProcessor.cs" />
     <Compile Include="Edit\CaretTraveller.cs" />
     <Compile Include="Edit\DeleteProcessor.cs" />
+    <Compile Include="Edit\GeneralWithRangeProcessor.cs" />
+    <Compile Include="Edit\RemoveRangeProcessor.cs" />
     <Compile Include="Edit\EnterProcessor.cs" />
     <Compile Include="Edit\GeneralProcessor.cs" />
     <Compile Include="Edit\TextInputProcessor.cs" />

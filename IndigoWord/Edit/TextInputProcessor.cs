@@ -1,7 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Resources;
-using System.Windows.Documents;
 using IndigoWord.Core;
 using IndigoWord.Render;
 
@@ -15,7 +13,9 @@ namespace IndigoWord.Edit
 
         public TextPosition Position { get; set; }
 
-        public string Text { get; set; }
+        public TextRange TextRange { get; set; }
+
+        public string Text { get; set; }        
     }
 
     abstract class TextInputProcessor
@@ -29,16 +29,15 @@ namespace IndigoWord.Edit
         {
             CheckParam(param);
 
-            UpdateDocument(param.Document, param.Position, param.Text);
+            UpdateDocument(param.Document, param.Position, param.TextRange, param.Text);
             Render(param.Render);
-            var caretPos = CalcCaretPosition(param.Document, param.Position);
+            var caretPos = CalcCaretPosition(param.Document, param.Position, param.TextRange);
 
             return caretPos;
         }
 
         public void Reset()
         {
-
             ResetCore();
         }
 
@@ -46,13 +45,13 @@ namespace IndigoWord.Edit
 
         #region Abstract Methods
 
-        protected abstract void UpdateDocument(TextDocument document, TextPosition position, string text);
+        public abstract void UpdateDocument(TextDocument document, TextPosition position, TextRange range, string text);
 
-        protected abstract void Render(DocumentRender render);
+        public abstract void Render(DocumentRender render);
 
-        protected abstract TextPosition CalcCaretPosition(TextDocument document, TextPosition position);
+        public abstract TextPosition CalcCaretPosition(TextDocument document, TextPosition position, TextRange range);
 
-        protected abstract void ResetCore();
+        public abstract void ResetCore();
 
         #endregion
 
