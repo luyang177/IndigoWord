@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media.TextFormatting;
+using System.Windows.Shapes;
 using IndigoWord.Utility;
 using Microsoft.Win32;
 using NUnit.Framework;
@@ -258,6 +259,19 @@ namespace IndigoWord.Core
             DoRemoveLines(index, size);
         }
 
+        public void Save(string path)
+        {
+            using (var sw = new StreamWriter(path))
+            {
+                foreach (var line in _lines.Select(pair => pair.Value))
+                {
+                    sw.Write(line.Text);
+                }
+            }
+
+            CommonSetting.Instance.LatestDocPath = path;
+            CommonSetting.Save();
+        }
 
         #endregion
 

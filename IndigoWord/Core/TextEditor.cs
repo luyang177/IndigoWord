@@ -118,22 +118,17 @@ namespace IndigoWord.Core
         {
             var openFileDialog = new OpenFileDialog
             {
-                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop), 
-                RestoreDirectory = true
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
             };
 
             var ret = openFileDialog.ShowDialog();
             if (ret.HasValue && ret.Value)
             {
                 var path = openFileDialog.FileName;
+                CurrentPath = path;
 
-                DocumentRender.Reset();
                 Document = TextDocument.Open(path);
-                DocumentRender.Show(Document);
-                Caret.Document = Document;
-                CaretPosition = new TextPosition(0, 0);
-                _selectionRange = new TextRange();
-                SelectionRender.Clear();
+                Reset();
             }
         }
 
@@ -188,6 +183,78 @@ namespace IndigoWord.Core
             _selectionRange.Change(pos);
 
             ShowSelectionText();
+        }
+
+        #endregion
+
+        #region New Command
+
+        private ICommand _newCommand;
+
+        public ICommand NewCommand
+        {
+            get { return _newCommand ?? (_newCommand = new RelayCommand(New)); }
+        }
+
+        private void New()
+        {
+            CurrentPath = null;
+            CommonSetting.Instance.LatestDocPath = "";
+            CommonSetting.Save();
+
+            Document = TextDocument.Empty();
+            Reset();
+        }
+
+        #endregion
+
+        #region Save Command
+
+        private ICommand _saveCommand;
+
+        public ICommand SaveCommand
+        {
+            get { return _saveCommand ?? (_saveCommand = new RelayCommand(Save)); }
+        }
+
+        private void Save()
+        {
+            if (CurrentPath == null || !File.Exists(CurrentPath))
+            {
+                SaveAs();
+            }
+            else
+            {
+                Document.Save(CurrentPath);
+            }
+        }
+
+        #endregion
+
+        #region SaveAs Command
+
+        private ICommand _saveAsCommand;
+
+        public ICommand SaveAsCommand
+        {
+            get { return _saveAsCommand ?? (_saveAsCommand = new RelayCommand(SaveAs)); }
+        }
+
+        private void SaveAs()
+        {
+            var dialog = new SaveFileDialog
+            {
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+                DefaultExt = ".txt"
+            };
+
+            var result = dialog.ShowDialog();
+
+            if (result == true)
+            {
+                string path = dialog.FileName;
+                Document.Save(path);
+            }
         }
 
         #endregion
@@ -283,6 +350,8 @@ namespace IndigoWord.Core
             get { return _selectionRange.IsRange; }
         }
 
+        private string CurrentPath { get; set; }
+
         #endregion
 
         #region Private Methods
@@ -308,6 +377,7 @@ namespace IndigoWord.Core
             }
             else
             {
+                CurrentPath = latestFile;
                 return TextDocument.Open(latestFile);
             }
         }
@@ -387,6 +457,16 @@ namespace IndigoWord.Core
             }
 
             return pos;
+        }
+
+        private void Reset()
+        {
+            DocumentRender.Reset();
+            DocumentRender.Show(Document);
+            Caret.Document = Document;
+            CaretPosition = new TextPosition(0, 0);
+            _selectionRange = new TextRange();
+            SelectionRender.Clear();
         }
 
         #endregion

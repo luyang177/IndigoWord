@@ -17,15 +17,15 @@ Lua Editor
 C# Editor
 
 [TODO]
-Save file.
 Support scroll: mouse wheel, PageUp and PageDown.
+Make a good looking tool bar.
+Correct wrap line.
+Show file path on the title.
 Vitual scroll.
 Show selection area for multiple blank lines.
 Shortkey: Shift + Home, Shift + End.
-Make a good looking tool bar.
 Use vs2015.
 Copy and Paste(ctrl + c, ctrl + v, and toolbar), use command.
-Add button to start a new file.
 Current line selection backgroud, consider NoWrap/Wrap.
 Show line number in the left.
 Fold lines.
@@ -33,6 +33,9 @@ Fold lines.
 -----------------------------------------------------------
 -----------------------------------------------------------
 [ChangeLog]
+
+2015-10-19
+Implement create new file, Save and save as...
 
 2015-10-16
 Implement the ralative feature about select characters like type word, type Delete, Backspace and cancel selection by click mouse.

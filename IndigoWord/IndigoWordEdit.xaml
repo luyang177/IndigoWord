@@ -33,10 +33,22 @@
         <StackPanel x:Name="MenuView"
                     Background="WhiteSmoke"
                     Orientation="Horizontal">
+            <Button Content="New"
+                    Margin="10"
+                    Command="{Binding NewCommand}"
+                    Focusable="False"/>            
             <Button Content="Open"
                     Margin="10"
                     Command="{Binding OpenCommand}"
                     Focusable="False"/>
+            <Button Content="Save"
+                    Margin="10"
+                    Command="{Binding SaveCommand}"
+                    Focusable="False"/>
+            <Button Content="Save As"
+                    Margin="10"
+                    Command="{Binding SaveAsCommand}"
+                    Focusable="False"/>            
             <ToggleButton Content="Wrap"
                           Width="50"
                           Height="50"
@@ -46,6 +58,7 @@
             <Button Content="Test"
                     Margin="10"
                     Command="{Binding TestCommand}"
+                    Visibility="Collapsed"
                     Focusable="False"/>
         </StackPanel>
 
