@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 namespace IndigoWord.Core
 {
     /*
+     * Range is [x,y)
+     * 
      * TextRange is a mutable struct, using property is a trap
      * because we will call getter to get a copy(remember this is a struct), and change the copy, not the real one
      * so use field instead.
@@ -43,11 +45,6 @@ namespace IndigoWord.Core
          */
         public void Change(TextPosition pos)
         {
-            if (pos.Equals(_anchor) || pos.Equals(_secondPos))
-            {
-                return;
-            }
-
             _secondPos = pos;
         }
 
@@ -65,6 +62,11 @@ namespace IndigoWord.Core
                     yield return i;
                 }
             }
+        }
+
+        public bool IsInRange(TextPosition pos)
+        {
+            return pos >= Start && pos <= End;
         }
     }
 }

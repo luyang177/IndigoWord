@@ -118,7 +118,7 @@ namespace IndigoWord.Core
         {
             var openFileDialog = new OpenFileDialog
             {
-                InitialDirectory = "c:\\", 
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop), 
                 RestoreDirectory = true
             };
 
@@ -132,6 +132,8 @@ namespace IndigoWord.Core
                 DocumentRender.Show(Document);
                 Caret.Document = Document;
                 CaretPosition = new TextPosition(0, 0);
+                _selectionRange = new TextRange();
+                SelectionRender.Clear();
             }
         }
 
@@ -345,7 +347,7 @@ namespace IndigoWord.Core
             };
             CaretPosition = processor.Process(param);
 
-            _selectionRange = new TextRange();
+            _selectionRange = new TextRange(CaretPosition);
             SelectionRender.Clear();
         }
 
@@ -354,6 +356,10 @@ namespace IndigoWord.Core
             if (IsSelectionRange)
             {
                 SelectionRender.Show(Document, _selectionRange);
+            }
+            else
+            {
+                SelectionRender.Clear();
             }
         }
 

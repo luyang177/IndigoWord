@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -75,7 +76,11 @@ namespace IndigoWord.Edit
 
         public override TextPosition CalcCaretPosition(TextDocument document, TextPosition position, TextRange range)
         {
-            return range.Start;
+            Debug.Assert(range.IsInRange(position));
+
+            //remember isAtEndOfLine set false, because after remove range, the Start posotion is not still the end of the line.
+            var pos = new TextPosition(range.Start.Line, range.Start.Column, false);
+            return pos;
         }
 
         public override void ResetCore()

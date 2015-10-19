@@ -11,6 +11,8 @@ namespace IndigoWord.Utility.Bahaviors
 {
     class MouseMoveBehavior : BehaviorBase<UIElement>
     {
+        private bool _isMove;
+
         protected override void OnAttached()
         {
             base.OnAttached();
@@ -18,7 +20,9 @@ namespace IndigoWord.Utility.Bahaviors
             if (AssociatedObject == null)
                 return;
 
+            AssociatedObject.MouseLeftButtonDown += OnMouseLeftButtonDown;
             AssociatedObject.MouseMove += OnMouseMove;
+            AssociatedObject.MouseLeftButtonUp += OnMouseLeftButtonUp;
         }
 
         protected override void OnDetaching()
@@ -28,12 +32,22 @@ namespace IndigoWord.Utility.Bahaviors
             if (AssociatedObject == null)
                 return;
 
+            AssociatedObject.MouseLeftButtonDown -= OnMouseLeftButtonDown;
             AssociatedObject.MouseMove -= OnMouseMove;
+            AssociatedObject.MouseLeftButtonUp -= OnMouseLeftButtonUp;
+        }
+
+        private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                _isMove = true;
+            }
         }
 
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (e.LeftButton != MouseButtonState.Pressed)
+            if (!_isMove)
             {
                 return;
             }
@@ -56,6 +70,11 @@ namespace IndigoWord.Utility.Bahaviors
             };
 
             Command.Execute(param);
+        }
+
+        private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs mouseButtonEventArgs)
+        {
+            _isMove = false;
         }
     }
 }
