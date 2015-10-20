@@ -2,7 +2,7 @@
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace IndigoWord.Utility.Bahaviors
+namespace IndigoWord.Behaviors
 {
     sealed class HitDrawingVisualBehavior : BehaviorBase<UIElement>
     {
@@ -50,7 +50,7 @@ namespace IndigoWord.Utility.Bahaviors
             var param = new VisualParam
             {
                 Visual = drawingVisual,
-                Point = pt
+                Point = Mapper.MapScreen2Origin(pt)
             };
 
             Command.Execute(param);

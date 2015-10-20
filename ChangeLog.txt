@@ -2,6 +2,8 @@
 WPF TextRun
 
 [Issue]
+-- Key Home 
+-- Key Enter at the last line, make scroll move to it.
 -- If you are just on the caret, drag mouse, you can not select any text.
 -- Direction Up/Down can remember last two line position, like other text editor.
 -- In wrap, type space in the beginning of a TextLine only add space to the previous TextLine. 
@@ -17,11 +19,10 @@ Lua Editor
 C# Editor
 
 [TODO]
-Support scroll: mouse wheel, PageUp and PageDown.
+Make key Up and Down sroll screen.
 Make a good looking tool bar.
-Correct wrap line.
+Correct width for wrap lines, //TODO width
 Show file path on the title.
-Vitual scroll.
 Show selection area for multiple blank lines.
 Shortkey: Shift + Home, Shift + End.
 Use vs2015.
@@ -29,10 +30,14 @@ Copy and Paste(ctrl + c, ctrl + v, and toolbar), use command.
 Current line selection backgroud, consider NoWrap/Wrap.
 Show line number in the left.
 Fold lines.
+Vitual scroll.
 
 -----------------------------------------------------------
 -----------------------------------------------------------
 [ChangeLog]
+
+2015-10-20
+Support scroll: mouse wheel, PageUp and PageDown.
 
 2015-10-19
 Implement create new file, Save and save as...

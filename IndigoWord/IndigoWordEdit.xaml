@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:render="clr-namespace:IndigoWord.Render"
              xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-             xmlns:bahaviors="clr-namespace:IndigoWord.Utility.Bahaviors"
+             xmlns:controls="clr-namespace:IndigoWord.Controls"
+             xmlns:behaviors="clr-namespace:IndigoWord.Behaviors"
              mc:Ignorable="d" 
              d:DesignHeight="300" 
              d:DesignWidth="300"
@@ -15,7 +16,8 @@
              VerticalAlignment="Top"
              Loaded="OnLoaded"  
              PreviewKeyDown="OnPreviewKeyDown"
-             MouseLeftButtonDown="OnMouseLeftButtonDown">
+             MouseLeftButtonDown="OnMouseLeftButtonDown"
+             x:Name="TopLevel">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -62,24 +64,33 @@
                     Focusable="False"/>
         </StackPanel>
 
-        <!--Transparent make it trigger button down event-->
-        <Grid Grid.Row="1"
-              Focusable="False"
-              Background="Transparent"   
-              Cursor="IBeam">
-            <i:Interaction.Behaviors>
-                <!--Not put behaviors direct in TextLayer, because we want hit blank area to do some vague hits and point the end of line-->
-                <bahaviors:HitDrawingVisualBehavior Command="{Binding HitCommand}"/>
-                <bahaviors:MouseMoveBehavior Command="{Binding MouseMoveCommand}"/>
-            </i:Interaction.Behaviors>
-            <!-- TODO Layer may need dynamic insert and remove by code -->
-            <AdornerDecorator ClipToBounds="True">
-                <Canvas x:Name="LayerContainer">
-                    <render:VisualHost x:Name="BackgroundLayer" />
-                    <render:VisualHost x:Name="TextLayer" />
-                </Canvas>
-            </AdornerDecorator>
-        </Grid>
+        <ScrollViewer Grid.Row="1" 
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto"
+                      CanContentScroll="True">
+            <!--Transparent make it trigger button down event-->
+            <controls:ScrollGrid x:Name="MyScrollGrid"
+                                 Focusable="False"
+                                 Background="Transparent"   
+                                 Cursor="IBeam"
+                                 TargetArea="{Binding ElementName=LayerContainer}"
+                                 Extent="{Binding DocumentRender.Extent}">
+                <i:Interaction.Behaviors>
+                    <!--Not put behaviors direct in TextLayer, because we want hit blank area to do some vague hits and point the end of line-->
+                    <behaviors:HitDrawingVisualBehavior Command="{Binding HitCommand}"
+                                                        Mapper="{Binding SimpleMapper, ElementName=TopLevel}"/>
+                    <behaviors:MouseMoveBehavior Command="{Binding MouseMoveCommand}"
+                                                 Mapper="{Binding SimpleMapper, ElementName=TopLevel}"/>
+                </i:Interaction.Behaviors>
+                <!-- TODO Layer may need dynamic insert and remove by code -->
+                <AdornerDecorator ClipToBounds="True">
+                    <Canvas x:Name="LayerContainer">
+                        <render:VisualHost x:Name="BackgroundLayer" />
+                        <render:VisualHost x:Name="TextLayer" />
+                    </Canvas>
+                </AdornerDecorator>
+            </controls:ScrollGrid>
+        </ScrollViewer>
         <StatusBar Grid.Row="2"
                    Background="Purple">
             <StatusBarItem>

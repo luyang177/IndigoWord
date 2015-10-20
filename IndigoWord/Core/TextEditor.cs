@@ -8,12 +8,12 @@ using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
 using IndigoWord.Annotations;
+using IndigoWord.Behaviors;
 using IndigoWord.Edit;
 using IndigoWord.LowFontApi;
 using IndigoWord.Mvvm;
 using IndigoWord.Render;
 using IndigoWord.Utility;
-using IndigoWord.Utility.Bahaviors;
 using Microsoft.Win32;
 
 namespace IndigoWord.Core
@@ -100,6 +100,9 @@ namespace IndigoWord.Core
         {
             get { return DocumentRender.FontRendering; }
         }
+
+        //DocumentRender public make xaml binding.
+        public DocumentRender DocumentRender { get; set; }
 
         #endregion
 
@@ -324,7 +327,7 @@ namespace IndigoWord.Core
 
         private TextDocument Document { get; set; }
 
-        private DocumentRender DocumentRender { get; set; }
+        
 
         private SelectionRender SelectionRender { get; set; }
 

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace IndigoWord.Utility.Bahaviors
+namespace IndigoWord.Behaviors
 {
     class MouseMoveBehavior : BehaviorBase<UIElement>
     {
@@ -66,7 +61,7 @@ namespace IndigoWord.Utility.Bahaviors
             var param = new VisualParam
             {
                 Visual = drawingVisual,
-                Point = pt
+                Point = Mapper.MapScreen2Origin(pt)
             };
 
             Command.Execute(param);

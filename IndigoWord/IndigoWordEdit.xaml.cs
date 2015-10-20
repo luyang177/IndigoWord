@@ -31,6 +31,14 @@ namespace IndigoWord
 
         private TextEditor TextEditor { get; set; }
 
+
+        private SimpleMapper _simpleMapper;
+
+        public SimpleMapper SimpleMapper
+        {
+            get { return _simpleMapper ?? (_simpleMapper = new SimpleMapper(MyScrollGrid)); }
+        }
+
         public IndigoWordEdit()
         {
             InitializeComponent();
@@ -51,7 +59,7 @@ namespace IndigoWord
              * but it's ok for this(IndigoWordEdit), so I have to pass MenuView.ActualHeight to ImeSupport, and calculate offset by myself.
              */
             _ime = new ImeSupport(this, MenuView.ActualHeight, TextEditor.CaretPositionProvider, TextEditor.FontRendering);
-            
+
             DataContext = TextEditor;
         }
 

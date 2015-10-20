@@ -6,22 +6,21 @@ using System.Threading.Tasks;
 
 namespace IndigoWord.Utility
 {
-    static class CompareExtension
+    static class ClampExtension
     {
         public static T Clamp<T>(this T self, T min, T max) where T : IComparable<T>
         {
-            if (self.CompareTo(min) < 0)
+            var result = self;
+            if (result.CompareTo(min) < 0)
             {
-                return min;
+                result = min;
+            }
+            else if (result.CompareTo(max) > 0)
+            {
+                result = max;
             }
 
-            if (self.CompareTo(max) > 0)
-            {
-                return max;
-            }
-
-            return self;
+            return result;
         }
-
     }
 }

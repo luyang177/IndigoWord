@@ -1,22 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
+using IndigoWord.Annotations;
+using IndigoWord.Behaviors;
 using IndigoWord.Core;
 using IndigoWord.LowFontApi;
 using IndigoWord.Utility;
-using IndigoWord.Utility.Bahaviors;
 
 namespace IndigoWord.Render
 {
-    class DocumentRender
+    class DocumentRender : INotifyPropertyChanged
     {
-
         #region Constructor
 
         public DocumentRender(ILayer layer, WrapState wrapState)
@@ -42,6 +44,23 @@ namespace IndigoWord.Render
         {
             get { return _fontRendering; }
             set { _fontRendering = value; }
+        }
+
+        private Size _extent;
+
+        public Size Extent
+        {
+            get { return _extent; }
+            set
+            {
+                if (_extent == value)
+                {
+                    return;
+                }
+
+                _extent = value;
+                OnPropertyChanged();
+            }
         }
 
         #endregion
@@ -157,6 +176,9 @@ namespace IndigoWord.Render
                 drawingElement.LogicLine.Top = pos;
                 pos += drawingElement.Height;
             }
+
+            //TODO width
+            Extent = new Size(1000, pos);
         }
 
         #endregion
@@ -225,9 +247,10 @@ namespace IndigoWord.Render
                 }
                 pos += drawingElement.Height;
             }
+
+            //TODO width
+            Extent = new Size(1000, pos);
         }
-
-
 
         private TextPosition? FindHittedTextPosition(VisualParam param)
         {
@@ -311,6 +334,21 @@ namespace IndigoWord.Render
         private bool IsWrap
         {
             get { return WrapState.IsWrap; }
+        }
+
+
+
+        #endregion
+
+        #region Implementation of INotifyPropertyChanged
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        [NotifyPropertyChangedInvocator]
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChangedEventHandler handler = PropertyChanged;
+            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
         }
 
         #endregion
