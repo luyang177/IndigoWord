@@ -130,6 +130,8 @@ namespace IndigoWord.Core
                 var path = openFileDialog.FileName;
                 CurrentPath = path;
 
+                Document.Dispose();
+                TextFormatterFactory.Reset();
                 Document = TextDocument.Open(path);
                 Reset();
             }
@@ -205,6 +207,8 @@ namespace IndigoWord.Core
             CommonSetting.Instance.LatestDocPath = "";
             CommonSetting.Save();
 
+            Document.Dispose();
+            TextFormatterFactory.Reset();
             Document = TextDocument.Empty();
             Reset();
         }

@@ -12,7 +12,7 @@ using NUnit.Framework;
 
 namespace IndigoWord.Core
 {
-    class TextDocument
+    class TextDocument : IDisposable
     {
         #region Constructor
 
@@ -172,14 +172,6 @@ namespace IndigoWord.Core
             return findLine;
         }
 
-        public void Reset()
-        {
-            foreach (var line in Lines)
-            {
-                line.RemoveTextLines();
-            }
-        }
-
         /*
          * Guarantee the return TextPosition is always valid.
          */
@@ -252,7 +244,7 @@ namespace IndigoWord.Core
             for (int i = 0; i < size; i++)
             {
                 var logicLine = _lines[index];
-                logicLine.RemoveTextLines();
+                logicLine.Dispose();
                 TextLineInfoManager.Remove(logicLine);
             }       
 
@@ -417,6 +409,18 @@ namespace IndigoWord.Core
         #region Private Properties and Fields
 
         private readonly Dictionary<int, LogicLine> _lines = new Dictionary<int, LogicLine>();
+
+        #endregion
+
+        #region Implementation of IDisposable
+
+        public void Dispose()
+        {
+            foreach (var line in Lines)
+            {
+                line.Dispose();
+            }
+        }
 
         #endregion
     }

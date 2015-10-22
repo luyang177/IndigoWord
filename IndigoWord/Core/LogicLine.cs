@@ -112,11 +112,6 @@ namespace IndigoWord.Core
             TextLines.AddRange(lines);
         }
 
-        public void RemoveTextLines()
-        {
-            TextLines.Clear();
-        }
-
         public TextLine GetNextTextLine(TextLine textLine)
         {
             var index = TextLines.IndexOf(textLine);
@@ -259,6 +254,7 @@ namespace IndigoWord.Core
         public void Dispose()
         {
             TextLines.ForEach(tl => tl.Dispose());
+            TextLines.Clear();
         }
 
         #endregion

@@ -65,6 +65,7 @@
     <Compile Include="Edit\TextInputProcessor.cs" />
     <Compile Include="Edit\TextInputProcessorFactory.cs" />
     <Compile Include="LowFontApi\ImeNativeWrapper.cs" />
+    <Compile Include="LowFontApi\TextFormatterFactory.cs" />
     <Compile Include="Render\IMapper.cs" />
     <Compile Include="Render\IOffset.cs" />
     <Compile Include="Render\SelectionRender.cs" />

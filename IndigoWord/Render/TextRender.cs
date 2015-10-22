@@ -30,7 +30,7 @@ namespace IndigoWord.Render
                 FontRendering = fontRender
             };
 
-            var formatter = TextFormatter.Create();
+            var formatter = TextFormatterFactory.Get();
 
             while (textStorePosition < textStore.Text.Length)
             {
@@ -68,7 +68,7 @@ namespace IndigoWord.Render
                     info.IsLast = true;
                 }
             }
-
+            
             return textLines;
         }
     }

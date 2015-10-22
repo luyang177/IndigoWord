@@ -218,7 +218,7 @@ namespace IndigoWord.Render
         {
             Debug.Assert(drawingElement != null);
 
-            logicLine.RemoveTextLines();
+            logicLine.Dispose();
             TextLineInfoManager.Remove(logicLine);
 
             double height = 0;
@@ -305,7 +305,8 @@ namespace IndigoWord.Render
 
         private void OnWrapChanged()
         {
-            Document.Reset();
+            Document.Dispose();
+            TextFormatterFactory.Reset();
             Reset();
             Show(Document);
         }

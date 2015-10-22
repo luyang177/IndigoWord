@@ -19,6 +19,8 @@ Lua Editor
 C# Editor
 
 [TODO]
+
+Vitual scroll: too much memory cost, and poor performance for 8000+ lines file.(cost 700MB memory!)
 Make key Up and Down sroll screen.
 Make a good looking tool bar.
 Correct width for wrap lines, //TODO width
@@ -30,11 +32,13 @@ Copy and Paste(ctrl + c, ctrl + v, and toolbar), use command.
 Current line selection backgroud, consider NoWrap/Wrap.
 Show line number in the left.
 Fold lines.
-Vitual scroll.
 
 -----------------------------------------------------------
 -----------------------------------------------------------
 [ChangeLog]
+
+2015-10-22
+Fix memory leak: after open another file, memory not release.
 
 2015-10-20
 Support scroll: mouse wheel, PageUp and PageDown.
