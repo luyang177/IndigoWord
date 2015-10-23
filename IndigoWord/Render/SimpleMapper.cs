@@ -40,6 +40,14 @@ namespace IndigoWord.Render
             return matrix;
         }
 
+        private Matrix ProcessOrigin2Screen()
+        {
+            var matrix = new Matrix();
+            matrix.Translate(0 - _offset.HorizontalOffset, 0 - _offset.VerticalOffset);
+
+            return matrix;
+        }
+
         #endregion
 
         #region Implementation of IMapper
@@ -50,6 +58,13 @@ namespace IndigoWord.Render
             return matrix.Transform(point);
         }
 
+        public Point MapOrigin2Screen(Point point)
+        {
+            var matrix = ProcessOrigin2Screen();
+            return matrix.Transform(point);
+        }
+
         #endregion
+
     }
 }

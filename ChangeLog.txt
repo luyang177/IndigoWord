@@ -19,8 +19,7 @@ Lua Editor
 C# Editor
 
 [TODO]
-
-Vitual scroll: too much memory cost, and poor performance for 8000+ lines file.(cost 700MB memory!)
+Only render text in the visible range to solve too much memory cost and poor performance for loading large file like 8000+ lines.
 Make key Up and Down sroll screen.
 Make a good looking tool bar.
 Correct width for wrap lines, //TODO width

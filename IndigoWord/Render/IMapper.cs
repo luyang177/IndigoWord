@@ -11,5 +11,8 @@ namespace IndigoWord.Render
     {
         //Map point from display coordinate to origin coordinate
         Point MapScreen2Origin(Point point);
+
+        //Map point from origin coordinate to display coordinate
+        Point MapOrigin2Screen(Point point);
     }
 }

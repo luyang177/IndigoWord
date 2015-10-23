@@ -58,7 +58,7 @@ namespace IndigoWord
              * I don't know why I can't receive message WM_IME_COMPOSITION for just the Grid of text
              * but it's ok for this(IndigoWordEdit), so I have to pass MenuView.ActualHeight to ImeSupport, and calculate offset by myself.
              */
-            _ime = new ImeSupport(this, MenuView.ActualHeight, TextEditor.CaretPositionProvider, TextEditor.FontRendering);
+            _ime = new ImeSupport(this, MenuView.ActualHeight, TextEditor.CaretPositionProvider, TextEditor.FontRendering, SimpleMapper);
 
             DataContext = TextEditor;
         }

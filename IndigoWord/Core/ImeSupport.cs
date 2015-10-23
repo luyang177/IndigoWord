@@ -12,6 +12,7 @@ using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.TextFormatting;
 using IndigoWord.LowFontApi;
+using IndigoWord.Render;
 
 namespace IndigoWord.Core
 {
@@ -31,11 +32,13 @@ namespace IndigoWord.Core
 	    private double _heightOffset;
 	    private ICaretPosition _caretPosition;
 	    private FontRendering _fontRendering;
+        private IMapper _mapper;
 
         public ImeSupport(FrameworkElement view, 
                           double heightOffset,
                           ICaretPosition caretPosition,
-                          FontRendering fontRendering)
+                          FontRendering fontRendering,
+                          IMapper mapper)
 		{
             if (view == null)
                 throw new ArgumentNullException("view");
@@ -50,6 +53,10 @@ namespace IndigoWord.Core
             if (fontRendering == null)
                 throw new ArgumentNullException("fontRendering");
             _fontRendering = fontRendering;
+
+            if(mapper == null)
+                throw new ArgumentNullException("mapper");
+            _mapper = mapper;
 
             InputMethod.SetIsInputMethodSuspended(view, true);
 			// We listen to CommandManager.RequerySuggested for both caret offset changes and changes to the set of read-only sections.
@@ -169,6 +176,7 @@ namespace IndigoWord.Core
                 var x = _caretPosition.CaretRect.Left;
                 var y = _caretPosition.CaretRect.Top + _heightOffset;
                 var point = new Point(x, y);
+                point = _mapper.MapOrigin2Screen(point);
                 ImeNativeWrapper.SetCompositionWindow(hwndSource, currentContext, point);
             }
 		}
